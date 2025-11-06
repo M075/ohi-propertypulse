@@ -1,0 +1,763 @@
+"use client";
+import React, { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { ChevronLeft, Edit2, PlusCircle, Upload, X } from "lucide-react";
+
+// Importing UI components from a custom UI library
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+
+const AddProductForm = () => {
+  // State to hold form field values
+  const [fields, setFields] = useState({
+    owner: "",
+    title: "",
+    description: "",
+    price: 0,
+    discountPercentage: 0,
+    rating: 0,
+    stock: 0,
+    brand: "",
+    status: "",
+    category: "",
+    deliveryOptions: {
+      delivery: true,
+      collection: false,
+    },
+    keywords: "",
+    warranty: "",
+    shippingOrigin: "",
+    featured: "",
+    thumbnail: "",
+    images: [],
+  });
+
+  // State to hold the currently previewed image
+  const [previewImage, setPreviewImage] = useState(null);
+
+  // Handler for input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFields((prevFields) => ({
+      ...prevFields,
+      [name]: value,
+    }));
+  };
+
+  // Handler for select input changes
+  const handleSelectChange = (name, value) => {
+    setFields((prevFields) => ({
+      ...prevFields,
+      [name]: value,
+    }));
+  };
+
+  // Handler for image uploads
+  const handleImageChange = (e, index) => {
+    const { files } = e.target;
+
+    if (files && files.length > 0) {
+      const updatedImages = [...fields.images];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+          const imageDataUrl = event.target.result;
+
+          if (index !== undefined) {
+            // Replace existing image
+            updatedImages[index] = imageDataUrl;
+          } else {
+            // Add new image
+            updatedImages.push(imageDataUrl);
+          }
+
+          setFields((prevFields) => ({
+            ...prevFields,
+            images: updatedImages,
+          }));
+
+          // Set preview image
+          if (index === undefined || index === updatedImages.length - 1) {
+            setPreviewImage(imageDataUrl);
+          }
+        };
+
+        reader.readAsDataURL(file);
+      }
+    }
+  };
+
+  // Function to remove an image
+  const removeImage = (index) => {
+    setFields((prevFields) => {
+      const newImages = prevFields.images.filter((_, i) => i !== index);
+
+      // Update preview image if necessary
+      if (previewImage === prevFields.images[index]) {
+        // If the removed image was the preview, set the first remaining image as preview
+        // or null if no images remain
+        setPreviewImage(newImages.length > 0 ? newImages[0] : null);
+      }
+
+      return {
+        ...prevFields,
+        images: newImages,
+      };
+    });
+  };
+
+  // Handler for image removal (prevents form submission and event bubbling)
+  const handleRemoveImage = (e, index) => {
+    e.preventDefault(); // Prevent form submission
+    e.stopPropagation(); // Stop event from bubbling up
+    removeImage(index);
+  };
+
+  // Handler for clicking on a thumbnail to set as preview
+  const handleThumbnailClick = (image) => {
+    setPreviewImage(image);
+  };
+
+  const handleOnSubmit = async (e) => {
+    e.preventDefault();
+
+    const submitButton = e.target.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.textContent = "Uploading...";
+
+    try {
+      const formData = new FormData(e.target);
+      formData.append(
+        "deliveryOptions",
+        JSON.stringify(fields.deliveryOptions),
+      );
+      const files = Array.from(e.target.images.files);
+
+      // Convert each file to base64
+      for (const file of files) {
+        const base64Data = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result.split(",")[1]);
+          reader.readAsDataURL(file);
+        });
+
+        // Remove the old file and add the base64 version
+        formData.delete("images");
+        const blob = new Blob([base64Data], { type: file.type });
+        Object.defineProperty(blob, "name", {
+          value: file.name,
+          writable: false,
+        });
+        formData.append("images", blob);
+      }
+
+      const response = await fetch("/api/products", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.redirected) {
+        window.location.href = response.url;
+      } else if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Upload failed");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Upload failed: " + error.message);
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = "Submit Product";
+    }
+  };
+  return (
+    // Main form component
+    <form
+      action="/api/products"
+      method="POST"
+      encType="mutlipart/form-data"
+      onSubmit={handleOnSubmit}
+      data-oid="aew3r_u"
+    >
+      <main
+        className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8"
+        data-oid="xdoua1t"
+      >
+        <div
+          className="mx-auto grid max-w-[59rem] flex-1 auto-rows-max gap-4"
+          data-oid="q_316hm"
+        >
+          {/* Header section */}
+          <div className="flex items-center gap-4" data-oid="2yq568f">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-7 w-7"
+              data-oid="ax-8rgi"
+            >
+              <ChevronLeft className="h-4 w-4" data-oid="kufjoac" />
+              <span className="sr-only" data-oid="s_lc51b">
+                Back
+              </span>
+            </Button>
+            <h1
+              className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0"
+              data-oid="z4.lna5"
+            >
+              Add a new Product
+            </h1>
+            <Badge
+              variant="outline"
+              className="ml-auto sm:ml-0"
+              data-oid="yqw91pm"
+            >
+              In stock
+            </Badge>
+            <div
+              className="hidden items-center gap-2 md:ml-auto md:flex"
+              data-oid="dmkb82:"
+            >
+              <Button variant="outline" size="sm" data-oid="3rhrlyu">
+                Discard
+              </Button>
+              <Button type="submit" size="sm" data-oid="o1fr59-">
+                Save Product
+              </Button>
+            </div>
+          </div>
+
+          {/* Main content grid */}
+          <div
+            className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-3 lg:gap-8"
+            data-oid="zw2hv9p"
+          >
+            {/* Left column */}
+            <div
+              className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8"
+              data-oid="zqdfmlm"
+            >
+              {/* Product Details Card */}
+              <Card data-oid="b8:j1cv">
+                <CardHeader data-oid="xs:co1r">
+                  <CardTitle data-oid="gng2d_i">Product Details</CardTitle>
+                  <CardDescription data-oid="u9wxvj0">
+                    Enter the details of your product
+                  </CardDescription>
+                </CardHeader>
+                <CardContent data-oid="yzluyzs">
+                  <div className="grid gap-6" data-oid="922vk5l">
+                    {/* Product name input */}
+                    <div className="grid gap-3" data-oid="igejhe0">
+                      <Label htmlFor="name" data-oid="8xel1bo">
+                        Name
+                      </Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        name="title"
+                        className="w-full"
+                        placeholder="Enter a name for your product"
+                        value={fields.title}
+                        onChange={handleChange}
+                        data-oid="wgfqv5e"
+                      />
+                    </div>
+                    {/* Product description textarea */}
+                    <div className="grid gap-3" data-oid="87j.2p4">
+                      <Label htmlFor="description" data-oid="hn.j15q">
+                        Description
+                      </Label>
+                      <Textarea
+                        id="description"
+                        className="min-h-32"
+                        placeholder="Enter a brief description of the product features and any relevant information."
+                        name="description"
+                        value={fields.description}
+                        onChange={handleChange}
+                        data-oid="3jkkxnw"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Product Category Card */}
+              <Card data-oid="9zzj46g">
+                <CardHeader data-oid="xa9n83j">
+                  <CardTitle data-oid="pi-aziw">Product Category</CardTitle>
+                </CardHeader>
+                <CardContent data-oid="316p8mt">
+                  <div className="grid gap-6 sm:grid-cols-3" data-oid="idfaiu3">
+                    {/* Category select */}
+                    <div className="grid gap-3" data-oid="80nzak0">
+                      <Label htmlFor="category" data-oid="xfggini">
+                        Category
+                      </Label>
+                      <Select
+                        name="category"
+                        value={fields.category}
+                        onValueChange={(value) =>
+                          handleSelectChange("category", value)
+                        }
+                        data-oid="uwjmux5"
+                      >
+                        <SelectTrigger id="category" data-oid="qyl9h9x">
+                          <SelectValue
+                            placeholder="Select category"
+                            data-oid="ehx8_cw"
+                          />
+                        </SelectTrigger>
+                        <SelectContent data-oid="v98.u-0">
+                          <SelectItem value="clothing" data-oid="d.iihp.">
+                            Clothing
+                          </SelectItem>
+                          <SelectItem value="electronics" data-oid="nkwwtxc">
+                            Electronics
+                          </SelectItem>
+                          <SelectItem value="accessories" data-oid="u_gg5.k">
+                            Accessories
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {/* Brand select */}
+                    <div className="grid gap-3" data-oid="v5t3:hs">
+                      <Label htmlFor="brand" data-oid="20o2diu">
+                        Brand (optional)
+                      </Label>
+                      <Select
+                        name="brand"
+                        value={fields.brand}
+                        onValueChange={(value) =>
+                          handleSelectChange("brand", value)
+                        }
+                        data-oid="r9vyq0u"
+                      >
+                        <SelectTrigger id="brand" data-oid="a-ye-w-">
+                          <SelectValue
+                            placeholder="Select brand"
+                            data-oid="xp0h:aj"
+                          />
+                        </SelectTrigger>
+                        <SelectContent data-oid="h5r0oo7">
+                          <SelectItem value="brand1" data-oid=".s8k9:2">
+                            Brand 1
+                          </SelectItem>
+                          <SelectItem value="brand2" data-oid="38ro8_j">
+                            Brand 2
+                          </SelectItem>
+                          <SelectItem value="brand3" data-oid="-hxf-q9">
+                            Brand 3
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Stock Card */}
+              <Card x-chunk="dashboard-07-chunk-1" data-oid="-01h2fi">
+                <CardHeader data-oid="9wyfw8p">
+                  <CardTitle data-oid="57r:x0k">Stock</CardTitle>
+                  <CardDescription data-oid=":wi-ug-">
+                    Lipsum dolor sit amet, consectetur adipiscing elit
+                  </CardDescription>
+                </CardHeader>
+                <CardContent data-oid="rctzls7">
+                  <Table data-oid="cxu5zg6">
+                    <TableHeader data-oid="rde-.y1">
+                      <TableRow data-oid="ov47wv5">
+                        <TableHead data-oid="9.dwf1q">Stock</TableHead>
+                        <TableHead data-oid="zq1qfwo">Price</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody data-oid="1eyt6-e">
+                      <TableRow data-oid="7ppkabr">
+                        {/* Stock input */}
+                        <TableCell data-oid="m:v.frw">
+                          <Label
+                            htmlFor="stock-1"
+                            className="sr-only"
+                            data-oid="56v-e_o"
+                          >
+                            Stock
+                          </Label>
+                          <Input
+                            id="stock-1"
+                            type="number"
+                            name="stock"
+                            placeholder="Enter number of items in stock"
+                            value={fields.stock}
+                            onChange={handleChange}
+                            data-oid="p:9h3.e"
+                          />
+                        </TableCell>
+                        {/* Price input */}
+                        <TableCell data-oid="e8p2efp">
+                          <Label
+                            htmlFor="price-1"
+                            className="sr-only"
+                            data-oid="dqncg10"
+                          >
+                            Price per product
+                          </Label>
+                          <Input
+                            id="price-1"
+                            type="number"
+                            placeholder="Enter product price"
+                            name="price"
+                            value={fields.price}
+                            onChange={handleChange}
+                            data-oid="vxmn.nk"
+                          />
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+
+              {/* Additional Product Details Card */}
+              <Card data-oid="j__15_i">
+                <CardHeader data-oid="ws3tg3p">
+                  <CardTitle data-oid="75w.dr3">
+                    Additional Product Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent data-oid="pnqsx0d">
+                  <div className="grid gap-6" data-oid="0ustydf">
+                    {/* Keywords */}
+                    <div className="grid gap-3" data-oid="iu84u8t">
+                      <Label htmlFor="keywords" data-oid=".sh-s3n">
+                        Keywords
+                      </Label>
+                      <Input
+                        id="keywords"
+                        type="text"
+                        placeholder="What categroy or domain would you say your products belong to?"
+                        name="keywords"
+                        value={fields.keywords}
+                        onChange={handleChange}
+                        data-oid="mm205mg"
+                      />
+                    </div>
+
+                    {/* Warranty */}
+                    <div className="grid gap-3" data-oid="tw4llqc">
+                      <Label htmlFor="warranty" data-oid="t:blpa7">
+                        Warranty
+                      </Label>
+                      <Input
+                        id="warranty"
+                        type="text"
+                        placeholder="Enter a warranty period, if applicable"
+                        name="warranty"
+                        value={fields.warranty}
+                        onChange={handleChange}
+                        data-oid="11p:dma"
+                      />
+                    </div>
+
+                    {/* Shipping Origin */}
+                    <div className="grid gap-3" data-oid="q78yond">
+                      <Label htmlFor="shipping-origin" data-oid="isy4bwg">
+                        Shipping Origin
+                      </Label>
+                      <Input
+                        id="shipping-origin"
+                        type="text"
+                        placeholder="Where is this product shipped from?"
+                        name="shippingOrigin"
+                        value={fields.shippingOrigin}
+                        onChange={handleChange}
+                        data-oid="2h2zijf"
+                      />
+                    </div>
+
+                    {/* Featured */}
+                    {/* <div className="grid gap-3">
+                          <Label htmlFor="featured">Featured</Label>
+                          <Input
+                            id="featured"
+                            type="text"
+                            placeholder="Enter featured status or category"
+                            name="featured"
+                            value={fields.featured}
+                            onChange={handleChange}
+                          />
+                         </div> */}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            {/* Right column */}
+            <div
+              className="grid auto-rows-max items-start gap-4 lg:gap-8"
+              data-oid="c.d3l.."
+            >
+              {/* Product Status Card */}
+              <Card x-chunk="dashboard-07-chunk-3" data-oid="zge4194">
+                <CardHeader data-oid="w64fgev">
+                  <CardTitle data-oid="fr:4-d8">Product Status</CardTitle>
+                </CardHeader>
+                <CardContent data-oid="vs:k49q">
+                  <div className="grid gap-6" data-oid="kz:mbj.">
+                    <div className="grid gap-3" data-oid="c.uj:mq">
+                      <Label htmlFor="status" data-oid="df9yt6e">
+                        Status
+                      </Label>
+                      <Select
+                        name="status"
+                        value={fields.status}
+                        onValueChange={(value) =>
+                          handleSelectChange("status", value)
+                        }
+                        data-oid="zv_.7hy"
+                      >
+                        <SelectTrigger id="status" data-oid="7ncy4k3">
+                          <SelectValue
+                            placeholder="Select status"
+                            data-oid="h6ntapn"
+                          />
+                        </SelectTrigger>
+                        <SelectContent data-oid="r_bqh:q">
+                          <SelectItem value="draft" data-oid="3zvikup">
+                            Draft
+                          </SelectItem>
+                          <SelectItem value="published" data-oid="21riv3:">
+                            Active
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Product Images Card */}
+              <Card className="overflow-hidden" data-oid="n3_ef3x">
+                <CardHeader data-oid="a97_5z7">
+                  <CardTitle data-oid="hz6k95m">Product Images</CardTitle>
+                  <CardDescription data-oid=":00x9sr">
+                    Upload up to 5 images of your product
+                  </CardDescription>
+                </CardHeader>
+                <CardContent data-oid="tb.gwrf">
+                  <div className="grid gap-4" data-oid="9h.rqbs">
+                    {/* Main preview image */}
+                    {(previewImage || fields.images[0]) && (
+                      <div className="relative" data-oid="wntu.ha">
+                        <Image
+                          alt="Product preview"
+                          className="aspect-square w-full rounded-md object-cover"
+                          height="300"
+                          src={previewImage || fields.images[0]}
+                          width="300"
+                          value={fields.images[0]}
+                          data-oid="4oh0hza"
+                        />
+
+                        {fields.images.length > 0 && (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-2 right-2"
+                            onClick={(e) =>
+                              handleRemoveImage(
+                                e,
+                                fields.images.indexOf(previewImage),
+                              )
+                            }
+                            data-oid="nxdxoom"
+                          >
+                            <X className="h-4 w-4" data-oid="nlcsfxq" />
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                    {/* Thumbnail images */}
+                    <div className="flex flex-wrap gap-5" data-oid="wxblgwp">
+                      {fields.images.map((img, index) => (
+                        <div
+                          key={index}
+                          className="relative w-16 h-16 cursor-pointer"
+                          onClick={() => handleThumbnailClick(img)}
+                          data-oid="pesww6o"
+                        >
+                          <Image
+                            alt={`Product image ${index + 1}`}
+                            className="rounded-md object-cover"
+                            src={img}
+                            layout="fill"
+                            data-oid="vunw10x"
+                          />
+
+                          <div
+                            className="absolute top-1 right-1 flex gap-1"
+                            data-oid="jcxaaf9"
+                          >
+                            {/* Edit image button */}
+                            <Label
+                              htmlFor={`change-image-${index}`}
+                              className="cursor-pointer rounded-full bg-white p-1"
+                              data-oid="gtny26t"
+                            >
+                              <Input
+                                id={`change-image-${index}`}
+                                type="file"
+                                className="hidden"
+                                onChange={(e) => handleImageChange(e, index)}
+                                accept="image/*"
+                                data-oid="p3loz1b"
+                              />
+
+                              <Edit2
+                                className="h-3 w-3 text-gray-600"
+                                data-oid=".xr.2o7"
+                              />
+                            </Label>
+                            {/* Remove image button */}
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              className="h-5 w-5 rounded-full p-0"
+                              onClick={(e) => handleRemoveImage(e, index)}
+                              data-oid="3596hx5"
+                            >
+                              <X className="h-3 w-3" data-oid="x_46yyi" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                      {/* Add new image button */}
+                      {fields.images.length < 5 && (
+                        <Label
+                          htmlFor="upload"
+                          className="flex w-16 h-16 hover:cursor-pointer items-center justify-center rounded-md border border-dashed"
+                          data-oid="rce-c0h"
+                        >
+                          <Input
+                            id="upload"
+                            type="file"
+                            className="hidden"
+                            onChange={handleImageChange}
+                            accept="image/*"
+                            name="images"
+                            multiple
+                            data-oid="hkqtwx4"
+                          />
+
+                          <Upload
+                            className="h-5 w-5 text-muted-foreground"
+                            data-oid="sgjlht0"
+                          />
+                        </Label>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* <div className='space-y-4'> */}
+              {/* Delivery Options Card */}
+              <Card data-oid=":m04ppq">
+                <CardHeader data-oid="n-dy.7a">
+                  <CardTitle data-oid="f:eg7zz">Delivery Options</CardTitle>
+                </CardHeader>
+                <CardContent data-oid="ju9yu6q">
+                  <div className="grid gap-6" data-oid="r0oqjyi">
+                    {/* Delivery Available Checkbox */}
+                    <div
+                      className="flex items-center space-x-2"
+                      data-oid="z2_8gtq"
+                    >
+                      <Checkbox
+                        id="delivery-available"
+                        checked={fields.deliveryOptions.delivery}
+                        onCheckedChange={(checked) =>
+                          setFields((prev) => ({
+                            ...prev,
+                            deliveryOptions: {
+                              ...prev.deliveryOptions,
+                              delivery: checked,
+                            },
+                          }))
+                        }
+                        data-oid="4y.3v40"
+                      />
+
+                      <Label htmlFor="delivery-available" data-oid="kww2w8_">
+                        Delivery Available
+                      </Label>
+                    </div>
+                    {/* Collection Available Checkbox */}
+                    <div
+                      className="flex items-center space-x-2"
+                      data-oid="d740rgu"
+                    >
+                      <Checkbox
+                        id="collection-available"
+                        checked={fields.deliveryOptions.collection}
+                        onCheckedChange={(checked) =>
+                          setFields((prev) => ({
+                            ...prev,
+                            deliveryOptions: {
+                              ...prev.deliveryOptions,
+                              collection: checked,
+                            },
+                          }))
+                        }
+                        data-oid="yd41s8i"
+                      />
+
+                      <Label htmlFor="collection-available" data-oid="dv:1934">
+                        Collection Available
+                      </Label>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* </div> */}
+            </div>
+          </div>
+        </div>
+      </main>
+    </form>
+  );
+};
+
+export default AddProductForm;
