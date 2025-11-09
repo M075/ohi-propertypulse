@@ -1,44 +1,48 @@
-// api.js
+// api.js - Fixed version
 export async function fetchProducts() {
   try {
+    // Use relative path for same-origin API calls
     const res = await fetch('/api/products', {
       cache: "no-store",
     });
+    
     if (!res.ok) {
-      throw new Error("Failed to fetch data");
+      const errorText = await res.text();
+      console.error('API Error Response:', errorText);
+      throw new Error(`Failed to fetch products: ${res.status} ${res.statusText}`);
     }
-    return await res.json();
+    
+    const data = await res.json();
+    console.log('Products fetched successfully:', data.length);
+    return data;
   } catch (error) {
     console.error("Error fetching products:", error);
     throw error;
   }
 }
 
-const apiDomain = process.env.NEXT_PUBLIC_API_DOMAIN || null;
-
-// Fetch a single property
+// Fetch a single product
 export async function fetchProduct(id) {
   try {
-    const apiDomain = process.env.NEXT_PUBLIC_API_DOMAIN;
-    
-    console.log("API Domain:", apiDomain);
-    console.log("Fetching product ID:", id);
-    
-    if (!apiDomain) {
-      console.error("API domain is not configured");
-      throw new Error("API domain is not configured");
+    if (!id) {
+      throw new Error("Product ID is required");
     }
 
-    const url = `api/products/${id}`;
+    console.log("Fetching product ID:", id);
+    
+    // Use relative path for same-origin API calls
+    const url = `/api/products/${id}`;
     console.log("Fetching from URL:", url);
     
     const res = await fetch(url, {
-      cache: "no-store" // Add this to ensure fresh data
+      cache: "no-store"
     });
 
     console.log("Response status:", res.status);
 
     if (!res.ok) {
+      const errorText = await res.text();
+      console.error('API Error Response:', errorText);
       throw new Error(`Failed to fetch product: ${res.status} ${res.statusText}`);
     }
 
@@ -48,7 +52,6 @@ export async function fetchProduct(id) {
     return data;
   } catch (error) {
     console.error("Error fetching product:", error);
-    throw error; // Re-throw instead of returning null
+    throw error;
   }
 }
-// You can add more API functions here as needed

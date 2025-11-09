@@ -62,7 +62,7 @@ export default function Navbar2() {
 
         <div className="hidden lg:flex lg:gap-x-12">
           {navigation.map((item) => (
-            <Link key={item.id} href={item.link} className="text-sm/6 font-semibold dark:text-gray-50 text-gray-900 hover:text-emerald-500">
+            <Link key={item.id} href={item.link} className="text-sm/6 font-semibold dark:text-gray-50 text-gray-900 dark:hover:text-emerald-500 hover:text-emerald-500">
               {item.text}
             </Link>
           ))}
@@ -147,7 +147,7 @@ export default function Navbar2() {
             <div className="-my-6 divide-y divide-gray-500/10">
               <div className="space-y-2 py-6">
                 {navigation.map((item) => (
-                  <Link key={item.id} href={item.link} className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 hover:text-emerald-500">
+                  <Link key={item.id} href={item.link} className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 dark:hover:text-emerald-500 hover:text-emerald-500">
                     {item.text}
                   </Link>
                 ))}
