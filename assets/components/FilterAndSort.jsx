@@ -18,6 +18,12 @@ export default function FilterAndSort({ products = [], renderResults }) {
     return ['all', ...Array.from(setCats)];
   }, [products]);
 
+  // Capitalize helper for display labels (preserve original value for filtering)
+  const capitalize = (s) => {
+    if (!s || typeof s !== 'string') return s;
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  };
+
   const filteredProducts = React.useMemo(() => {
     if (!products) return [];
 
@@ -82,17 +88,17 @@ export default function FilterAndSort({ products = [], renderResults }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search by name or description"
-          className="w-full md:w-1/3 px-3 py-2 rounded border bg-gray-800 text-white"
+          className="w-full md:w-2/3 px-3 py-2 rounded border dark:bg-zinc-900 dark:text-white bg-white text-gray-900"
         />
 
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="w-full md:w-1/6 px-3 py-2 rounded border bg-gray-800 text-white"
+          className="w-full md:w-1/6 pl-3 pr-10 py-2 rounded border dark:bg-zinc-900 dark:text-white bg-white text-gray-900"
         >
           {categories.map((c) => (
             <option key={c} value={c}>
-              {c}
+              {capitalize(c)}
             </option>
           ))}
         </select>
@@ -100,7 +106,7 @@ export default function FilterAndSort({ products = [], renderResults }) {
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value)}
-          className="w-full md:w-1/6 px-3 py-2 rounded border bg-gray-800 text-white"
+          className="w-full md:w-1/6 px-3 py-2 rounded border dark:bg-zinc-900 dark:text-white bg-white text-gray-900"
         >
           <option value="latest">Newest</option>
           <option value="price-asc">Price: Low → High</option>
@@ -114,7 +120,7 @@ export default function FilterAndSort({ products = [], renderResults }) {
             setCategory('all');
             setSort('latest');
           }}
-          className="px-4 py-2 rounded bg-gray-700 text-white"
+          className="px-4 py-2 rounded bg-emerald-600 text-white"
         >
           Reset
         </button>
