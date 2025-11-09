@@ -3,6 +3,7 @@ import React from "react";
 import DashHeader from "@/assets/components/DashHeader";
 import DashSideNav from "@/assets/components/DashSideNav";
 import AddProductForm from "@/assets/components/AddProductForm";
+import DashboardShell from "@/assets/components/DashboardShell";
 
 const AddProductPage = () => {
   const breadcrumbsData = [
@@ -12,17 +13,9 @@ const AddProductPage = () => {
   ];
 
   return (
-    <div className="mt-20">
-      <div className="flex min-h-screen w-full flex-col bg-muted/40">
-        <DashSideNav />
-
-        <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-          <DashHeader breadcrumbs={breadcrumbsData} />
-
+    <DashboardShell>
           <AddProductForm />
-        </div>
-      </div>
-    </div>
+       </DashboardShell>
   );
 };
 export default AddProductPage;

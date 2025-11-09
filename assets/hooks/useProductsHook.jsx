@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 // This hook fixes products loading issue, prevents abnormal behaviour
 import { useState, useEffect } from "react";
 import { fetchProducts } from "@/assets/hooks/fetchProducts";

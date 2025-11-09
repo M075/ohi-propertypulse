@@ -1,4 +1,5 @@
 "use client";
+import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -35,104 +36,40 @@ export default function HeroSection() {
             ></div>
           </div>
           <div
-            className="grid lg:grid-cols-2 gap-10 xl:gap-14 relative pt-24 lg:max-w-none max-w-2xl md:max-w-3xl mx-auto"
-            data-oid="_pygs-v"
+            className="grid lg:grid-cols-2 relative pt-24 lg:max-w-none max-w-2xl md:max-w-3xl mx-auto"
           >
-            <div className="lg:py-6" data-oid="0f:hkz5">
-              <div className="text-center lg:text-left" data-oid="86j.on2">
-                <span
-                  className="px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200"
-                  data-oid=":zn45gk"
-                >
-                  New season available{" "}
-                  <Link
-                    href="#"
-                    className="underline text-emerald-700 dark:text-white font-semibold"
-                    data-oid="bnu3pu6"
-                  >
-                    here
-                  </Link>
-                </span>
-                <h1
-                  className="text-gray-800 pt-4 dark:text-white font-bold text-4xl md:text-5xl lg:text-6xl"
-                  data-oid="8f6:42r"
-                >
-                  Find and listen <br data-oid="p13y-nj" /> Favorite
-                  <span
-                    className="text-transparent bg-clip-text bg-gradient-to-br from-emerald-500 to-[#8cd66a]"
-                    data-oid="m90jb82"
-                  >
-                    Podcast
-                  </span>
-                  on internet
-                </h1>
-              </div>
-              <p
-                className="text-gray-600 dark:text-gray-300 mt-8 text-center lg:text-left mx-auto max-w-xl"
-                data-oid="rn8xdd5"
-              >
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Illum,
-                beatae omnis ipsa magnam neque ut nam nesciunt esse fugit
-                praesentium hic magni possimus illo consequatur.
-              </p>
-              <div
-                className="flex items-center gap-4 mt-8 flex-col sm:flex-row sm:w-max sm:mx-auto lg:mx-0"
-                data-oid="az4-h2m"
-              >
-                <Link
-                  href="#"
-                  className="px-7 relative text-white h-12 flex w-full sm:w-max justify-center items-center before:bg-emerald-500 before:absolute before:inset-0 before:rounded-full before:transition-transform before:ease-linear hover:before:scale-105 active:before:scale-95"
-                  data-oid="t7v3t9c"
-                >
-                  <span className="relative text-white" data-oid="fbzn0w9">
-                    {" "}
-                    Join Us
-                  </span>
-                </Link>
-                <Link
-                  href="#"
-                  className="px-7 relative text-emerald-500 h-12 flex w-full sm:w-max justify-center items-center before:bg-emerald-500/5 dark:before:bg-emerald-500/10 before:absolute before:inset-0 before:rounded-full before:transition-transform before:ease-linear hover:before:scale-105 active:before:scale-95"
-                  data-oid="s5_f7_8"
-                >
-                  <span
-                    className="relative text-emerald-500 flex items-center gap-x-3"
-                    data-oid="y34lzwr"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width={20}
-                      height={20}
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="w-3 h-3"
-                      data-oid="eh5oaob"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z"
-                        clipRule="evenodd"
-                        data-oid="pg78slp"
-                      />
-                    </svg>
-                    Listening Episode
-                  </span>
-                </Link>
-              </div>
-
-              {/* Avatars and worldwide listeners */}
-              {/* <div className="flex items-center text-center flex-col sm:flex-row gap-4 sm:gap-0 mt-8 w-max mx-auto lg:mx-0">
-                      <div className="flex items-center -space-x-2">
-                          <Image src="/images/sidebiew.webp" height={900} width={1240} alt="avatar" className="w-10 h-10 rounded-full ring-4 ring-white dark:ring-gray-950 object-cover" />
-                          <Image src="/images/sidebiew.webp" height={900} width={1240} alt="avatar" className="w-10 h-10 rounded-full ring-4 ring-white dark:ring-gray-950 object-cover" />
-                          <Image src="/images/sidebiew.webp" height={900} width={1240} alt="avatar" className="w-10 h-10 rounded-full ring-4 ring-white dark:ring-gray-950 object-cover" />
-                          <Image src="/images/sidebiew.webp" height={900} width={1240} alt="avatar" className="w-10 h-10 rounded-full ring-4 ring-white dark:ring-gray-950 object-cover" />
-                          <span className="w-10 h-10 rounded-full ring-4 ring-white dark:ring-gray-950 bg-gray-200 dark:bg-gray-800 text-xs text-gray-700 dark:text-gray-300 flex items-center justify-center">
-                              300+
-                          </span>
-                      </div>
-                      <span className="pl-2 text-gray-600 dark:text-gray-200"> WordWide listners </span>
-                   </div> */}
-            </div>
+            {/* Text on left */}
+            <div className="mx-auto max-w-2xl lg:mx-0 lg:max-w-xl lg:flex-shrink-0 lg:pt-8">
+          <div className="mt-24 sm:mt-32 lg:mt-16">
+            <a href="#" className="inline-flex space-x-6">
+              <span className="rounded-full bg-emerald-600/10 px-3 py-1 text-sm font-semibold leading-6 text-emerald-600 ring-1 ring-inset ring-indigo-600/10">
+                What's new
+              </span>
+              <span className="inline-flex items-center space-x-2 text-sm font-medium leading-6 text-gray-600">
+                <span>Just shipped v1.0</span>
+                <ChevronRightIcon aria-hidden="true" className="h-5 w-5 text-gray-400" />
+              </span>
+            </a>
+          </div>
+          <h1 className="mt-10 text-4xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100 sm:text-6xl">
+            A Central Marketplace <br />for your <br /> Home Business
+          </h1>
+          <p className="mt-6 text-lg leading-8 text-gray-600">
+            Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt amet
+            fugiat veniam occaecat fugiat aliqua.
+          </p>
+          <div className="mt-10 flex items-center gap-x-6">
+            <a
+              href="#"
+              className="rounded-md bg-emerald-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
+            >
+              Get started
+            </a>
+            <a href="#" className="text-sm font-semibold leading-6 text-gray-900 dark:text-gray-100">
+              Learn more <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
 
             {/* Images on right */}
             <div className="lg:h-full hidden md:flex" data-oid="ixqgby2">

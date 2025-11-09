@@ -1,7 +1,7 @@
 // api.js
 export async function fetchProducts() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_DOMAIN}/products`, {
+    const res = await fetch('/api/products', {
       cache: "no-store",
     });
     if (!res.ok) {
@@ -29,7 +29,7 @@ export async function fetchProduct(id) {
       throw new Error("API domain is not configured");
     }
 
-    const url = `${apiDomain}/products/${id}`;
+    const url = `api/products/${id}`;
     console.log("Fetching from URL:", url);
     
     const res = await fetch(url, {

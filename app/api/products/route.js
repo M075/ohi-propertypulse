@@ -1,35 +1,21 @@
 import connectDB from '@/config/database';
 import Product from '@/models/Product';
+import User from '@/models/User';
 import { getSessionUser } from '@/utils/getSessionUser';
-
-const uploadToFreeImageHost = async (file) => {
-  try {
-    const formData = new FormData();
-    formData.append('source', file);
-    formData.append('key', process.env.FREEIMAGE_API_KEY);
-
-    const response = await fetch('https://freeimage.host/api/1/upload', {
-      method: 'POST',
-      body: formData
-    });
-
-    if (!response.ok) {
-      throw new Error(`Upload failed with status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.image.url;
-  } catch (error) {
-    console.error('Image upload error:', error);
-    throw new Error(`Failed to upload image: ${error.message}`);
-  }
-};
+import { uploadMultipleToImageKit, getImagePresets } from '@/utils/imagekit';
 
 export const GET = async (request) => {
   try {
     await connectDB();
     const products = await Product.find();
-    return new Response(JSON.stringify(products), {
+    
+    // Optionally add optimized URLs to response
+    const productsWithOptimizedImages = products.map(product => ({
+      ...product.toObject(),
+      optimizedImages: product.images.map(url => getImagePresets(url))
+    }));
+    
+    return new Response(JSON.stringify(productsWithOptimizedImages), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -53,13 +39,22 @@ export const POST = async (request) => {
     const formData = await request.formData();
     const imageFiles = formData.getAll('images').filter(image => image.name !== '');
     
-    const imageUrls = await Promise.all(
-      imageFiles.map(async (image) => {
-        const buffer = Buffer.from(await image.text(), 'base64');
-        const blob = new Blob([buffer], { type: image.type });
-        return uploadToFreeImageHost(blob);
-      })
+    console.log('Processing images:', imageFiles.map(f => ({
+      name: f.name,
+      type: f.type,
+      size: f.size
+    })));
+
+    // Upload all images to ImageKit (batch upload, direct buffer)
+    const uploadResults = await uploadMultipleToImageKit(
+      imageFiles,
+      `user_${sessionUser.userId}/products`
     );
+    
+    // Extract URLs from upload results
+    const imageUrls = uploadResults.map(result => result.url);
+    
+    console.log('Upload successful:', imageUrls);
 
     const productData = {
       owner: sessionUser.userId,
@@ -78,13 +73,29 @@ export const POST = async (request) => {
       review: formData.getAll('review').map(review => JSON.parse(review)),
       discountPercentage: formData.get('discountPercentage') || 0,
       images: imageUrls,
+      // Store file IDs for easier deletion later
+      imageFileIds: uploadResults.map(result => result.fileId),
     };
+
+    console.log('Creating product with data:', {
+      ...productData,
+      images: `${imageUrls.length} images`
+    });
+
+    // fetch user storename to denormalize into the product for fast reads
+    try {
+      const user = await User.findById(sessionUser.userId).select('storename');
+      if (user && user.storename) productData.ownerName = user.storename;
+    } catch (err) {
+      console.warn('Could not fetch user storename for product creation', err);
+    }
 
     const newProduct = new Product(productData);
     await newProduct.save();
 
-    return Response.redirect(`/dashboard/products/list`);
+    return Response.redirect(`${process.env.NEXTAUTH_URL}/dashboard/products`);
   } catch (error) {
+    console.error('Error creating product:', error);
     return new Response(JSON.stringify({ 
       error: error.message,
       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined 
@@ -94,3 +105,6 @@ export const POST = async (request) => {
     });
   }
 };
+     
+
+   

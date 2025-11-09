@@ -14,7 +14,7 @@
 */
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogBackdrop,
@@ -45,7 +45,10 @@ import Image from "next/image";
 import logo from "@/public/logo.png";
 import AddProductForm from "./AddProductForm";
 import { usePathname } from "next/navigation";
-import { Package, UserIcon } from "lucide-react";
+import { Package, Search, UserIcon } from "lucide-react";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import Link from "next/link";
+import { Input } from "@/components/ui/input";
 
 const navigation = [
   { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
@@ -70,6 +73,12 @@ const userNavigation = [
   { name: "Your profile", href: "#" },
   { name: "Sign out", href: "#" },
 ];
+
+const breadcrumbs = [
+    { label: "Dashboard", link: "#" },
+    { label: "Products", link: "/dashboard/products" },
+    { label: "Edit Products", link: "/dashboard/products" },
+  ];
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -210,7 +219,7 @@ export default function DashboardShell({ children }) {
           data-oid="2lop92j"
         >
           <div
-            className="flex grow flex-col gap-y-5 overflow-y-auto bg-white dark:bg-zinc-900 px-6 pb-4"
+            className="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-100 dark:bg-zinc-900 px-6 pb-4"
             data-oid="efpe4fz"
           >
             <div className="flex h-16 shrink-0 items-center" data-oid="673zxdr">
@@ -242,7 +251,7 @@ export default function DashboardShell({ children }) {
                           className={classNames(
                             item.current
                               ? "bg-emerald-600 text-white"
-                              : "text-gray-600 dark:text-gray-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-gray-900 dark:hover:text-white",
+                              : "text-gray-600 dark:text-gray-300 hover:bg-emerald-100 dark:hover:bg-zinc-800 hover:text-gray-900 dark:hover:text-white",
                             "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6",
                           )}
                           data-oid="mchmei0"
@@ -281,7 +290,7 @@ export default function DashboardShell({ children }) {
 
         <div className="lg:pl-72 mt-20" data-oid="lbcqr2x">
           <div
-            className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-zinc-900 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8"
+            className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 dark:border-gray-800 bg-zinc-100 dark:bg-zinc-900 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8"
             data-oid="3amid.4"
           >
             <button
@@ -307,118 +316,37 @@ export default function DashboardShell({ children }) {
               data-oid="0-ftjvb"
             />
 
-            <div
-              className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6"
-              data-oid="ihjpxnu"
-            >
-              <form
-                action="#"
-                method="GET"
-                className="relative flex flex-1"
-                data-oid="33m0wa3"
-              >
-                <label
-                  htmlFor="search-field"
-                  className="sr-only"
-                  data-oid="8:n9duc"
-                >
-                  Search
-                </label>
-                <MagnifyingGlassIcon
-                  aria-hidden="true"
-                  className="pointer-cursor absolute inset-y-0 ml-3 mr-2 h-full w-5 dark:text-gray-600 text-gray-800"
-                  data-oid="zjz0_d-"
-                />
-
-                <input
-                  id="search-field"
-                  name="search"
-                  type="search"
-                  // placeholder="Search..."
-                  className="rounded h-full w-full border-0 py-0 pl-8 pr-0 text-gray-900 dark:text-white dark:bg-zinc-800 placeholder:text-gray-800 focus:ring-0 sm:text-sm"
-                  data-oid="np66.x3"
-                />
-              </form>
-              <div
-                className="flex items-center gap-x-4 lg:gap-x-6"
-                data-oid="zmd18mg"
-              >
-                <button
-                  type="button"
-                  className="-m-2.5 p-2.5 text-gray-800 hover:text-gray-500"
-                  data-oid="b6jrty1"
-                >
-                  <span className="sr-only" data-oid="e7b:_ez">
-                    View notifications
-                  </span>
-                  <BellIcon
-                    aria-hidden="true"
-                    className="h-6 w-6"
-                    data-oid="n9tkxgk"
-                  />
-                </button>
-
-                {/* Separator */}
-                <div
-                  aria-hidden="true"
-                  className="hidden lg:block lg:h-6 lg:w-px lg:bg-zinc-900/10"
-                  data-oid="sr27q3-"
-                />
-
-                {/* Profile dropdown */}
-                <Menu as="div" className="relative" data-oid="lskplxb">
-                  <MenuButton
-                    className="-m-1.5 flex items-center p-1.5"
-                    data-oid="bih1eel"
-                  >
-                    <span className="sr-only" data-oid="yoa0w.c">
-                      Open user menu
-                    </span>
-                    <img
-                      alt=""
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                      className="h-8 w-8 rounded-full bg-zinc-50"
-                      data-oid="ytb0tnv"
-                    />
-
-                    <span
-                      className="hidden lg:flex lg:items-center"
-                      data-oid="_4rr-bw"
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="ml-4 text-sm font-semibold leading-6 text-gray-900"
-                        data-oid="hif6k02"
-                      >
-                        Tom Cook
-                      </span>
-                      <ChevronDownIcon
-                        aria-hidden="true"
-                        className="ml-2 h-5 w-5 text-gray-800"
-                        data-oid="s6f5n1f"
-                      />
-                    </span>
-                  </MenuButton>
-                  <MenuItems
-                    transition
-                    className="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-                    data-oid="hubtkna"
-                  >
-                    {userNavigation.map((item) => (
-                      <MenuItem key={item.name} data-oid="dal9y24">
-                        <a
-                          href={item.href}
-                          className="block px-3 py-1 text-sm leading-6 text-gray-900 data-[focus]:bg-zinc-50"
-                          data-oid="8tv:0p4"
-                        >
-                          {item.name}
-                        </a>
-                      </MenuItem>
-                    ))}
-                  </MenuItems>
-                </Menu>
-              </div>
-            </div>
+            <Breadcrumb className="hidden md:flex" data-oid="_yrxgfj">
+                    <BreadcrumbList data-oid=":zmsqti">
+                      {breadcrumbs.map((breadcrumb, index) => (
+                        <React.Fragment key={index}>
+                          <BreadcrumbItem data-oid="5n:kyqx">
+                            <BreadcrumbLink asChild data-oid="2uu6fgf">
+                              <Link href={breadcrumb.link} data-oid="4ad6frt">
+                                {breadcrumb.label}
+                              </Link>
+                            </BreadcrumbLink>
+                          </BreadcrumbItem>
+                          {index < breadcrumbs.length - 1 && (
+                            <BreadcrumbSeparator data-oid="syn:9o:" />
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </BreadcrumbList>
+                  </Breadcrumb>
+                  <div className="relative flex-1 md:flex-initial" data-oid="gmtr_wq">
+                            <Search
+                              className="absolute left-2.5 top-3 h-4 w-4 text-muted-foreground"
+                              data-oid="ppao1.4"
+                            />
+                  
+                            <Input
+                              type="search"
+                              placeholder="Search..."
+                              className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px] md:justify-end"
+                              data-oid="9txto_f"
+                            />
+                          </div>
           </div>
 
           <main className="py-10" data-oid="3:gsqly">

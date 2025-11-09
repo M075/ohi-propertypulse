@@ -60,6 +60,10 @@ const AddProductForm = () => {
     images: [],
   });
 
+  // Keep actual File objects for upload (parallel to fields.images previews)
+  const [imageFiles, setImageFiles] = useState([]);
+  // Track images removed by the user so server can delete them when editing
+  const [removedImages, setRemovedImages] = useState([]);
   // State to hold the currently previewed image
   const [previewImage, setPreviewImage] = useState(null);
 
@@ -86,6 +90,7 @@ const AddProductForm = () => {
 
     if (files && files.length > 0) {
       const updatedImages = [...fields.images];
+      const updatedFiles = [...imageFiles];
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
@@ -94,18 +99,21 @@ const AddProductForm = () => {
         reader.onload = (event) => {
           const imageDataUrl = event.target.result;
 
-          if (index !== undefined) {
-            // Replace existing image
+          if (typeof index === "number") {
+            // Replace existing image preview and file
             updatedImages[index] = imageDataUrl;
+            updatedFiles[index] = file;
           } else {
-            // Add new image
+            // Add new image preview and file
             updatedImages.push(imageDataUrl);
+            updatedFiles.push(file);
           }
 
           setFields((prevFields) => ({
             ...prevFields,
             images: updatedImages,
           }));
+          setImageFiles(updatedFiles);
 
           // Set preview image
           if (index === undefined || index === updatedImages.length - 1) {
@@ -129,6 +137,17 @@ const AddProductForm = () => {
         // or null if no images remain
         setPreviewImage(newImages.length > 0 ? newImages[0] : null);
       }
+
+      // If the removed image is an existing URL (likely from server), track it so
+      // the server can delete the resource when updating. We assume server URLs
+      // start with http(s) whereas local previews are data URLs starting with data:
+      const removed = prevFields.images[index];
+      if (removed && typeof removed === "string" && removed.startsWith("http")) {
+        setRemovedImages((prev) => [...prev, removed]);
+      }
+
+      // Also remove corresponding file object if present
+      setImageFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
 
       return {
         ...prevFields,
@@ -157,30 +176,40 @@ const AddProductForm = () => {
     submitButton.textContent = "Uploading...";
 
     try {
-      const formData = new FormData(e.target);
+      // Build FormData manually to ensure File objects are sent as-is
+      const formData = new FormData();
+
+      // Append scalar fields
+      formData.append("title", fields.title || "");
+      formData.append("description", fields.description || "");
+      formData.append("price", fields.price ?? 0);
+      formData.append("discountPercentage", fields.discountPercentage ?? 0);
+      formData.append("rating", fields.rating ?? 0);
+      formData.append("stock", fields.stock ?? 0);
+      formData.append("brand", fields.brand || "");
+      formData.append("category", fields.category || "");
+      formData.append("keywords", fields.keywords || "");
+      formData.append("warranty", fields.warranty || "");
+      formData.append("shippingOrigin", fields.shippingOrigin || "");
+      formData.append("featured", fields.featured || "");
+      formData.append("status", fields.status || "");
+
+      // Delivery options as JSON
       formData.append(
         "deliveryOptions",
-        JSON.stringify(fields.deliveryOptions),
+        JSON.stringify(fields.deliveryOptions || {}),
       );
-      const files = Array.from(e.target.images.files);
 
-      // Convert each file to base64
-      for (const file of files) {
-        const base64Data = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result.split(",")[1]);
-          reader.readAsDataURL(file);
-        });
-
-        // Remove the old file and add the base64 version
-        formData.delete("images");
-        const blob = new Blob([base64Data], { type: file.type });
-        Object.defineProperty(blob, "name", {
-          value: file.name,
-          writable: false,
-        });
-        formData.append("images", blob);
+      // Append image files (if any) in order
+      for (let i = 0; i < imageFiles.length; i++) {
+        const file = imageFiles[i];
+        if (file instanceof File) {
+          formData.append("images", file, file.name);
+        }
       }
+
+      // Send removedImages array so backend can delete stored images when editing
+      formData.append("removedImages", JSON.stringify(removedImages || []));
 
       const response = await fetch("/api/products", {
         method: "POST",
@@ -206,7 +235,7 @@ const AddProductForm = () => {
     <form
       action="/api/products"
       method="POST"
-      encType="mutlipart/form-data"
+    encType="multipart/form-data"
       onSubmit={handleOnSubmit}
       data-oid="aew3r_u"
     >

@@ -8,6 +8,11 @@ const nextConfig = {
         pathname: '**',
       },
       {
+        protocol: 'https',
+        hostname: 'ik.imagekit.io',
+        pathname: '**',
+      },
+      {
         hostname: 'images.pexels.com', 
       },
       {

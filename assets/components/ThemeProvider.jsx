@@ -6,7 +6,7 @@ import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme("dark");
+  const { theme, setTheme } = useTheme();
 
   const [mounted, setMounted] = useState(false);
 
@@ -17,23 +17,22 @@ export function ThemeToggle() {
   return (
     <Button
       suppressHydrationWarning
-      variant="outline"
+      variant="ghost"
       size="icon"
-      className="dark:border-foreground bg-transparent dark:bg-transparent dark:text-white"
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       data-oid="knxchgl"
     >
       {theme === "dark" ? (
-        <Moon
-          suppressHydrationWarning
-          className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 dark:text-foreground transition-all dark:rotate-0 dark:scale-100"
-          data-oid="lncmky-"
-        />
-      ) : (
         <Sun
           suppressHydrationWarning
-          className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+          className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:text-white"
           data-oid=":_b94hm"
+        />
+      ) : (
+        <Moon
+          suppressHydrationWarning
+          className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 text-zinc-700 transition-all"
+          data-oid="lncmky-"
         />
       )}
       <span className="sr-only" data-oid="a5cyjhg">

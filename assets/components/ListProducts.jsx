@@ -77,30 +77,6 @@ const ProductsTable = () => {
     }
   }, [session]);
 
-  // const products = [
-  //   {
-  //     id: 'PROD-8782',
-  //     thumbnail: '/image.png',
-  //     title: 'Product A',
-  //     status: 'In Progress',
-  //     priority: 'Medium',
-  //   },
-  //   {
-  //     id: 'PROD-7878',
-  //     thumbnail: '/image.png',
-  //     title: 'Product B',
-  //     status: 'Backlog',
-  //     priority: 'Medium',
-  //   },
-  //   {
-  //     id: 'PROD-7839',
-  //     thumbnail: '/image.png',
-  //     title: 'Product C',
-  //     status: 'Todo',
-  //     priority: 'High',
-  //   },
-  //   // Add more products as needed
-  // ];
 
   const handleDeleteProduct = async (productId) => {
     // const confirmed = window.confirm(

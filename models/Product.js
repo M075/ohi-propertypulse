@@ -8,6 +8,10 @@ const ProductSchema = new Schema(
       ref: "User",
       required: false,
     },
+    ownerName: {
+      type: String,
+      required: false,
+    },
     title: {
       type: String,
       required: false,
@@ -92,11 +96,31 @@ const ProductSchema = new Schema(
         type: String,
       },
     ],
+    // ImageKit file IDs for efficient deletion
+    imageFileIds: [
+      {
+        type: String,
+      },
+    ],
   },
   {
     timestamps: true,
   }
 );
+
+// Add index for better query performance
+ProductSchema.index({ owner: 1 });
+ProductSchema.index({ ownerName: 1 });
+ProductSchema.index({ category: 1 });
+ProductSchema.index({ featured: 1 });
+ProductSchema.index({ status: 1 });
+
+// Virtual for getting optimized image URLs (optional)
+ProductSchema.virtual('optimizedImages').get(function() {
+  // This would require importing getImagePresets in the model
+  // Better to handle this in the API routes
+  return this.images;
+});
 
 const Product = models.Product || model("Product", ProductSchema);
 

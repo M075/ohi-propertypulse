@@ -30,11 +30,19 @@ export const authOptions = {
        // 3. If not, create user in database
        if (!userExists) {
          // Truncate user name if too long
-         const username = profile.name.slice(0, 20);
- 
+         const username = profile.name ? profile.name.slice(0, 20) : profile.email.split('@')[0];
+
+         // derive a default storename from the email (left of @), sanitized
+         const emailLocal = (profile.email || '').split('@')[0] || '';
+         const defaultStoreName = emailLocal
+           .replace(/\./g, ' ')
+           .replace(/[^a-z0-9-_]/gi, '')
+           .toLowerCase();
+
          await User.create({
            email: profile.email,
            username,
+           storename: defaultStoreName,
            image: profile.picture,
          });
        }

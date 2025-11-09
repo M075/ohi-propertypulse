@@ -1,3 +1,10 @@
+// middleware.js - Enhance protection
 export { default } from 'next-auth/middleware';
 
-export const config = { matcher: ['/products/add'] };
+export const config = { 
+  matcher: [
+    '/dashboard/:path*',
+    '/api/products/:path*',
+    '/api/users/:path*'
+  ] 
+};
