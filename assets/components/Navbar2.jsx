@@ -40,6 +40,57 @@ export default function Navbar2() {
     setAuthProviders();
   }, []);
 
+  // Touch gesture: swipe from the right edge to open, swipe right to close (mobile)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    let startX = 0;
+    let startY = 0;
+
+    const onTouchStart = (e) => {
+      const t = e.touches[0];
+      startX = t.clientX;
+      startY = t.clientY;
+    };
+
+    const onTouchEnd = (e) => {
+      const t = e.changedTouches[0];
+      const endX = t.clientX;
+      const endY = t.clientY;
+      const dx = endX - startX;
+      const dy = Math.abs(endY - startY);
+
+      // Only consider mostly-horizontal swipes
+      if (dy > 100) return;
+
+      const threshold = 60; // px
+      const rightEdgeThreshold = 80; // px from right edge to start opening
+      const isSmallScreen = window.innerWidth < 1024; // match lg breakpoint
+
+      if (!isSmallScreen) return;
+
+      // Swipe left from right edge -> open menu
+      if (!mobileMenuOpen && startX > window.innerWidth - rightEdgeThreshold && startX - endX > threshold) {
+        setMobileMenuOpen(true);
+        return;
+      }
+
+      // Swipe right while menu open -> close menu
+      if (mobileMenuOpen && dx > threshold) {
+        setMobileMenuOpen(false);
+        return;
+      }
+    };
+
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    document.addEventListener("touchend", onTouchEnd, { passive: true });
+
+    return () => {
+      document.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [mobileMenuOpen]);
+
   return (
     <>
     <header className="absolute inset-x-0 top-0 z-50">
@@ -171,7 +222,9 @@ export default function Navbar2() {
                     <div className="space-y-2 py-6 justify-center flex flex-col">
                       {navigation.map((item) => (
                         <Link key={item.id} href={item.link} className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 dark:hover:text-emerald-600 hover:text-emerald-600">
+                  <button type="button" onClick={() => setMobileMenuOpen(false)} className="-m-2.5 rounded-md p-2.5">
                           {item.text}
+                          </button>
                         </Link>
                       ))}
 

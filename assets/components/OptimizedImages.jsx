@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 // Client-side URL transformation helper
 const getOptimizedUrl = (url, options = {}) => {
@@ -52,6 +52,12 @@ export const OptimizedImage = ({
 }) => {
   const [imgSrc, setImgSrc] = useState(src);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Keep internal imgSrc in sync when src prop changes (important for controlled updates)
+  useEffect(() => {
+    setImgSrc(src);
+    setIsLoading(true);
+  }, [src]);
 
   // Preset configurations
   const presets = {

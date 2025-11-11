@@ -108,6 +108,23 @@ const ProductSchema = new Schema(
   }
 );
 
+// Pre-save hook: populate shippingOrigin from owner's city if not explicitly set
+ProductSchema.pre('save', async function(next) {
+  try {
+    // Only populate shippingOrigin if it's not already set
+    if (!this.shippingOrigin && this.owner) {
+      const User = models.User || (await import('./User.js')).default;
+      const user = await User.findById(this.owner);
+      if (user && user.city) {
+        this.shippingOrigin = user.city;
+      }
+    }
+  } catch (err) {
+    console.warn('Failed to populate shippingOrigin from user city:', err);
+  }
+  next();
+});
+
 // Add index for better query performance
 ProductSchema.index({ owner: 1 });
 ProductSchema.index({ ownerName: 1 });

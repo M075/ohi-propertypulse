@@ -1,12 +1,12 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { fetchProduct } from "@/assets/hooks/fetchProducts";
 import { useProducts } from "@/assets/hooks/useProductsHook"; // Assuming we have this hook
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { StarIcon, MessageCircle } from "lucide-react";
+import { StarIcon, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import placeholder from "@/public/image.png";
 import Image from "next/image";
 import Link from "next/link";
@@ -32,6 +32,9 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [reviews, setReviews] = useState([]);
 const [selectedImage, setSelectedImage] = useState(0)
+  // refs for touch gesture handling
+  const touchStartX = useRef(null);
+  const touchStartY = useRef(null);
 
   // useEffect(() => {
   //   const fetchProductData = async () => {
@@ -81,7 +84,7 @@ const [selectedImage, setSelectedImage] = useState(0)
     if (id) fetchProduct();
   }, [id]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loading />;
   if (!product) return <div>Product not found</div>;
 
   // Safe image access with fallback
@@ -107,23 +110,67 @@ const [selectedImage, setSelectedImage] = useState(0)
 
   return (
     <>
-      <section className="py-24">
-        <div className="max-w-7xl mx-auto px-4 py-8">
+      <section className="">
+        <div className="max-w-7xl mx-auto px-4 py-24 md:pt-32 md:pb-16">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        
-        {/* LEFT: Image Gallery */}
-        <div className="space-y-4">
-          {/* Main Image - Using ProductDetailImage (1200x1200, quality 85) */}
-          <div className="aspect-square rounded-lg overflow-hidden border">
-            <ProductDetailImage
-              src={images[selectedImage]}
-              alt={`${product.title} - Image ${selectedImage + 1}`}
-              className="w-full h-full object-cover"
-            />
-          </div>
+          {/* Main image (driven by selectedImage) */}
+          <div
+            className="relative"
+            onTouchStart={(e) => {
+              if (!e.touches || e.touches.length === 0) return;
+              const t = e.touches[0];
+              touchStartX.current = t.clientX;
+              touchStartY.current = t.clientY;
+            }}
+            onTouchEnd={(e) => {
+              if (!e.changedTouches || e.changedTouches.length === 0) return;
+              const t = e.changedTouches[0];
+              const dx = t.clientX - (touchStartX.current ?? 0);
+              const dy = Math.abs(t.clientY - (touchStartY.current ?? 0));
+              const threshold = 50; // px
+              // ignore mostly-vertical gestures
+              if (dy > 100) return;
+              if (dx < -threshold) {
+                // swipe left -> next
+                setSelectedImage((s) => (s + 1) % images.length);
+              } else if (dx > threshold) {
+                // swipe right -> prev
+                setSelectedImage((s) => (s - 1 + images.length) % images.length);
+              }
+            }}
+          >
+            <div className="w-full rounded-lg overflow-hidden">
+              <OptimizedImage
+                src={images[selectedImage]}
+                alt={`${product.title} - Image ${selectedImage + 1}`}
+                preset="mobile"
+                width={1200}
+                height={1200}
+                className="w-full h-full object-cover rounded-lg"
+              />
+            </div>
 
-          {/* Thumbnail Gallery */}
-          <div className="grid grid-cols-5 gap-2">
+            {images.length > 1 && (
+              <>
+                <button
+                  aria-label="Previous image"
+                  onClick={() => setSelectedImage((selectedImage - 1 + images.length) % images.length)}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 dark:bg-zinc-800/80 p-2 shadow-md"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <button
+                  aria-label="Next image"
+                  onClick={() => setSelectedImage((selectedImage + 1) % images.length)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/80 dark:bg-zinc-800/80 p-2 shadow-md"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              </>
+            )}
+
+            {/* Thumbnail Gallery */}
+            <div className="grid grid-cols-5 gap-2 mt-4">
             {images.map((img, index) => (
               <button
                 key={index}
@@ -145,40 +192,13 @@ const [selectedImage, setSelectedImage] = useState(0)
               </button>
             ))}
           </div>
-
-          {/* Alternative: Carousel for Mobile */}
-          <div className="md:hidden">
-            <Carousel>
-              <CarouselContent>
-                {images.map((img, index) => (
-                  <CarouselItem key={index}>
-                    {/* Using MobileImage preset (800x800, quality 75) */}
-                    <OptimizedImage
-                      src={img}
-                      alt={`${product.title} - Image ${index + 1}`}
-                      preset="mobile"
-                      width={800}
-                      height={800}
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              {images.length > 1 && (
-                <>
-                  <CarouselPrevious />
-                  <CarouselNext />
-                </>
-              )}
-            </Carousel>
           </div>
-        </div>
 
         {/* RIGHT: Product Information */}
         <div className="space-y-6">
           <div>
-            <p className="text-sm text-gray-600">{product.brand}</p>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            <p className="text-md font-semibold text-gray-600">{product.ownerName}</p>
+            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
               {product.title}
             </h1>
           </div>
@@ -238,39 +258,33 @@ const [selectedImage, setSelectedImage] = useState(0)
               )}
             </div>
 
-            {/* Delivery Options */}
-            {(product.deliveryOptions?.delivery || product.deliveryOptions?.collection) && (
-              <div className="space-y-2">
-                <h3 className="font-semibold">Delivery Options:</h3>
-                <ul className="space-y-1">
-                  {product.deliveryOptions.delivery && (
-                    <li className="flex items-center gap-2">
-                      <span className="text-emerald-500">✓</span>
-                      Delivery Available
-                    </li>
-                  )}
-                  {product.deliveryOptions.collection && (
-                    <li className="flex items-center gap-2">
-                      <span className="text-emerald-500">✓</span>
-                      Collection Available
-                    </li>
-                  )}
-                </ul>
-              </div>
-            )}
+            
+            <div className="flex items-center space-x-4">
+              <Button
+                className="bg-emerald-600 hover:bg-emerald-700 text-white flex-1"
+                disabled={product.stock === 0}
+              >
+                Add to Cart
+              </Button>
+              <Button
+                className="bg-amber-500 hover:bg-amber-600 text-white flex-1"
+                disabled={product.stock === 0}
+              >
+                Buy Now
+              </Button>
+            </div>
           </div>
         </div>
+        </div>
       </div>
-
-     
-    </div>
-        {/* <div className='bg-white dark:bg-background'> */}
-        <main
+    </section>
+    {/* <div className='bg-white dark:bg-background'> */}
+    <main
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
           data-oid="3gz_hy7"
         >
           {/* Tabs section */}
-          <div className="mt-16" data-oid="1x3ep:4">
+          <div className="" data-oid="1x3ep:4">
             <Tabs
               defaultValue="description"
               className="w-full"
@@ -314,45 +328,52 @@ const [selectedImage, setSelectedImage] = useState(0)
                   >
                     <div data-oid="xi92n9g">
                       <h4 className="font-medium" data-oid="8ta5dwb">
-                        Brand
+                        Store Name
                       </h4>
-                      <p data-oid="k.xnry-">{product?.brand || "N/A"}</p>
+                      <p data-oid="k.xnry-">{product?.ownerName || "Ohi! Store"}</p>
                     </div>
                     <div data-oid="v3.m44n">
                       <h4 className="font-medium" data-oid="uy1m6ti">
                         Category
                       </h4>
-                      <p data-oid="hfkre8n">{product?.category || "N/A"}</p>
+                      <p data-oid="hfkre8n">{product?.category || "Miscellaneous"}</p>
                     </div>
                     <div data-oid="i:7x.8b">
                       <h4 className="font-medium" data-oid="n5kv_aj">
                         Warranty
                       </h4>
-                      <p data-oid="x-hwvav">{product?.warranty || "N/A"}</p>
+                      <p data-oid="x-hwvav">{product?.warranty || "No Warranty"}</p>
                     </div>
                     <div data-oid="l4b:r-8">
                       <h4 className="font-medium" data-oid="o34ye0t">
                         Shipping From
                       </h4>
                       <p data-oid="d:gfo4o">
-                        {product?.shippingOrigin || "N/A"}
+                        {product?.shippingOrigin || "Somewhere in South Africa"}
                       </p>
                     </div>
                   </div>
 
-                  <div className="mt-4" data-oid="ntmn3m5">
-                    <h4 className="font-medium" data-oid="m:.uvon">
-                      Delivery Options
-                    </h4>
-                    <ul className="list-disc pl-5 mt-2" data-oid="_eg3:t4">
-                      {product?.deliveryOptions?.delivery && (
-                        <li data-oid="3k6.:zk">Delivery Available</li>
-                      )}
-                      {product?.deliveryOptions?.collection && (
-                        <li data-oid="m8y5vni">Collection Available</li>
-                      )}
-                    </ul>
-                  </div>
+                  {/* Delivery Options */}
+            {(product.deliveryOptions?.delivery || product.deliveryOptions?.collection) && (
+              <div className="space-y-2">
+                <h3 className="font-semibold">Delivery Options:</h3>
+                <ul className="space-y-1">
+                  {product.deliveryOptions.delivery && (
+                    <li className="flex items-center gap-2">
+                      <span className="text-emerald-500">✓</span>
+                      Delivery Available
+                    </li>
+                  )}
+                  {product.deliveryOptions.collection && (
+                    <li className="flex items-center gap-2">
+                      <span className="text-emerald-500">✓</span>
+                      Collection Available
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )}
                 </div>
               </TabsContent>
 
@@ -389,7 +410,6 @@ const [selectedImage, setSelectedImage] = useState(0)
           </div>
         </main>
         {/* </div> */}
-      </section>
       <RecentProducts data-oid="9lbv-5b" />
     </>
   );

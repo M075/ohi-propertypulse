@@ -165,7 +165,11 @@ const EditProductForm = () => {
   // Update handleSubmit to properly handle the image upload
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    const submitButtons = e.target.querySelectorAll('button[type="submit"]');
+    submitButtons.forEach((btn) => {
+      btn.disabled = true;
+      btn.textContent = "Updating...";
+    });
     try {
       const formData = new FormData();
 
@@ -633,7 +637,25 @@ const EditProductForm = () => {
                   </div>
                 </CardContent>
               </Card>
+            <div
+              className="justify-end items-center gap-2 flex flex-row md:hidden"
+              data-oid="1ifcrm0"
+            >
+              <div>
 
+              <Link href="/dashboard/products">
+              <Button variant="outline" size="sm" data-oid="hrrlpz6">
+                Discard
+              </Button>
+              </Link>
+              </div>
+              <div>
+                
+              <Button type="submit" size="sm" data-oid="k:b5c-t">
+                Update Product
+              </Button>
+              </div>
+            </div>
               {/* </div> */}
             </div>
           </div>

@@ -8,24 +8,37 @@ const Loading = () => {
         background="white"
         darkBackground="black"
         // NOTE: Using GIFs for the background looks super cool :)
-        imgUrl="https://images.unsplash.com/photo-1459535653751-d571815e906b?q=80&w=1468&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        imgUrlDesktop="https://plus.unsplash.com/premium_photo-1723575832464-2c0c772593b2?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=870"
+        imgUrlMobile="https://images.unsplash.com/photo-1588153990953-7c681e89682a?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=391"
         data-oid="r-1pgwo"
       />
     </div>
   );
 };
 
-const CutoutTextLoader = ({ height, background, darkBackground, imgUrl }) => {
+const CutoutTextLoader = ({ height, background, darkBackground, imgUrlDesktop, imgUrlMobile }) => {
   return (
     <div className="relative" style={{ height }} data-oid="nqa3ocg">
+      {/* Desktop background (visible on md and up) */}
       <div
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 hidden md:block"
         style={{
-          backgroundImage: `url(${imgUrl})`,
+          backgroundImage: `url(${imgUrlDesktop})`,
           backgroundPosition: "center",
           backgroundSize: "cover",
         }}
-        data-oid="7_pcuf6"
+        data-oid="7_pcuf6_desktop"
+      />
+
+      {/* Mobile background (visible below md) */}
+      <div
+        className="absolute inset-0 z-0 md:hidden"
+        style={{
+          backgroundImage: `url(${imgUrlMobile})`,
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+        }}
+        data-oid="7_pcuf6_mobile"
       />
 
       <div
@@ -33,16 +46,32 @@ const CutoutTextLoader = ({ height, background, darkBackground, imgUrl }) => {
         data-oid="s8j2bou"
       />
 
+      {/* Text with desktop background image */}
       <span
-        className="font-black absolute inset-0 z-20 text-center bg-clip-text text-transparent pointer-events-none"
+        className="font-black absolute inset-0 z-20 text-center bg-clip-text text-transparent pointer-events-none hidden md:block"
         style={{
-          backgroundImage: `url(${imgUrl})`,
+          backgroundImage: `url(${imgUrlDesktop})`,
           backgroundPosition: "center",
           backgroundSize: "cover",
           fontSize: "clamp(3rem, 12vw, 10rem)",
           lineHeight: height,
         }}
-        data-oid="ja2vlrz"
+        data-oid="ja2vlrz_desktop"
+      >
+        Loading...
+      </span>
+
+      {/* Text with mobile background image */}
+      <span
+        className="font-black absolute inset-0 z-20 text-center bg-clip-text text-transparent pointer-events-none md:hidden"
+        style={{
+          backgroundImage: `url(${imgUrlMobile})`,
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+          fontSize: "clamp(3rem, 12vw, 10rem)",
+          lineHeight: height,
+        }}
+        data-oid="ja2vlrz_mobile"
       >
         Loading...
       </span>
