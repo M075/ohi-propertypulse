@@ -109,8 +109,6 @@ export const ProductCardImage = ({ src, alt, className = "" }) => (
     src={src}
     alt={alt}
     preset="card"
-    width={400}
-    height={400}
     className={className}
   />
 );

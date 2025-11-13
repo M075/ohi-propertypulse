@@ -4,6 +4,7 @@ import React from "react";
 import Loading from "@/app/loading";
 import { useProducts } from "@/assets/hooks/useProductsHook";
 import FilterAndSort from "@/assets/components/FilterAndSort";
+import ShopByCategory from "@/assets/components/ShopByCategory";
 import Image from "next/image";
 
 const ProductsPage = () => {
@@ -70,7 +71,9 @@ const stats = [
       </div>
     </div>
 
-      <div className="container-xl lg:container m-auto p-10" data-oid="4z4mxwh">
+      <ShopByCategory />
+
+      <div className="bg-zinc-100 dark:bg-zinc-900 m-4 rounded-lg p-4" data-oid="4z4mxwh">
         <FilterAndSort products={products} />
       </div>
     </section>

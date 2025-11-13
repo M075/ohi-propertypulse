@@ -130,7 +130,7 @@ const ProductsTable = () => {
   };
 
   return (
-    <Card className="w-11/12 mx-auto mt-2 dark:bg-zinc-900" data-oid="y.qvo25">
+    <Card className="w-11/12 mx-auto mt-2 border-none bg-zinc-100 dark:bg-zinc-900" data-oid="y.qvo25">
       <CardHeader className="flex flex-row " data-oid="-um8bbl">
         <CardTitle data-oid="54xqb8g">Products</CardTitle>
         <Link
@@ -165,7 +165,7 @@ const ProductsTable = () => {
                 .map((product) => (
                   <div
                     key={product._id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                    className="flex items-center justify-between p-4 border-none bg-white dark:bg-zinc-800 rounded-lg hover:bg-muted/50 transition-colors"
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-20 h-16 rounded-md overflow-hidden bg-muted flex-shrink-0 relative">

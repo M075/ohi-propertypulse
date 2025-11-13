@@ -368,15 +368,26 @@ const AddProductForm = () => {
                           />
                         </SelectTrigger>
                         <SelectContent data-oid="v98.u-0">
-                          <SelectItem value="clothing" data-oid="d.iihp.">
-                            Clothing
-                          </SelectItem>
-                          <SelectItem value="electronics" data-oid="nkwwtxc">
-                            Electronics
-                          </SelectItem>
-                          <SelectItem value="accessories" data-oid="u_gg5.k">
-                            Accessories
-                          </SelectItem>
+                          <SelectItem value="fashion-apparel">Fashion & Apparel</SelectItem>
+                          <SelectItem value="footwear-accessories">Footwear & Accessories</SelectItem>
+                          <SelectItem value="jewelry-watches">Jewelry & Watches</SelectItem>
+                          <SelectItem value="beauty-personal-care">Beauty & Personal Care</SelectItem>
+                          <SelectItem value="health-wellness">Health & Wellness</SelectItem>
+                          <SelectItem value="devices-electronics">Devices & Electronics</SelectItem>
+                          <SelectItem value="computers-accessories">Computers & Accessories</SelectItem>
+                          <SelectItem value="home-living">Home & Living</SelectItem>
+                          <SelectItem value="kitchen-dining">Kitchen & Dining</SelectItem>
+                          <SelectItem value="furniture-decor">Furniture & Decor</SelectItem>
+                          <SelectItem value="sports-outdoors">Sports & Outdoors</SelectItem>
+                          <SelectItem value="fitness-training">Fitness & Training</SelectItem>
+                          <SelectItem value="books-stationery">Books & Stationery</SelectItem>
+                          <SelectItem value="toys-games">Toys & Games</SelectItem>
+                          <SelectItem value="infants-toddlers">Infants & Toddlers</SelectItem>
+                          <SelectItem value="kids-teens">Kids & Teens</SelectItem>
+                          <SelectItem value="pets-supplies">Pets & Supplies</SelectItem>
+                          <SelectItem value="automotive-tools">Automotive & Tools</SelectItem>
+                          <SelectItem value="garden-outdoor">Garden & Outdoor Living</SelectItem>
+                          <SelectItem value="groceries-essentials">Groceries & Essentials</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

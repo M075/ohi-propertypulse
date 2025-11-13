@@ -1,3 +1,4 @@
+// assets/components/Navbar2.jsx - Add cart count badge
 "use client"
 
 import Image from "next/image";
@@ -15,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
 import { FaArrowRightFromBracket } from "react-icons/fa6";
 import { Home, ShoppingBag, Box, User } from 'lucide-react';
-// Using Headless UI Menu for the avatar dropdown (copied from DashboardShell)
+import { useCart } from '@/assets/contexts/CartContext'; // Add this import
 
 const navigation = [
   { id: 1, text: "Home", link: "/" },
@@ -28,6 +29,7 @@ export default function Navbar2() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [providers, setProviders] = useState(null);
   const { data: session } = useSession();
+  const { cartCount } = useCart(); // Add this
 
   const profileImage = session?.user?.image;
 
@@ -40,42 +42,35 @@ export default function Navbar2() {
     setAuthProviders();
   }, []);
 
-  // Touch gesture: swipe from the right edge to open, swipe right to close (mobile)
+  // Touch gesture handling (keep existing code)
   useEffect(() => {
     if (typeof window === "undefined") return;
-
     let startX = 0;
     let startY = 0;
 
     const onTouchStart = (e) => {
+      if (!e.touches || e.touches.length === 0) return;
       const t = e.touches[0];
       startX = t.clientX;
       startY = t.clientY;
     };
 
     const onTouchEnd = (e) => {
+      if (!e.changedTouches || e.changedTouches.length === 0) return;
       const t = e.changedTouches[0];
-      const endX = t.clientX;
-      const endY = t.clientY;
-      const dx = endX - startX;
-      const dy = Math.abs(endY - startY);
-
-      // Only consider mostly-horizontal swipes
-      if (dy > 100) return;
-
-      const threshold = 60; // px
-      const rightEdgeThreshold = 80; // px from right edge to start opening
-      const isSmallScreen = window.innerWidth < 1024; // match lg breakpoint
+      const dx = t.clientX - (startX ?? 0);
+      const dy = Math.abs(t.clientY - (startY ?? 0));
+      const threshold = 60;
+      const rightEdgeThreshold = 80;
+      const isSmallScreen = window.innerWidth < 1024;
 
       if (!isSmallScreen) return;
 
-      // Swipe left from right edge -> open menu
-      if (!mobileMenuOpen && startX > window.innerWidth - rightEdgeThreshold && startX - endX > threshold) {
+      if (!mobileMenuOpen && startX > window.innerWidth - rightEdgeThreshold && startX - t.clientX > threshold) {
         setMobileMenuOpen(true);
         return;
       }
 
-      // Swipe right while menu open -> close menu
       if (mobileMenuOpen && dx > threshold) {
         setMobileMenuOpen(false);
         return;
@@ -123,7 +118,20 @@ export default function Navbar2() {
         </div>
 
         <div className="hidden lg:flex lg:flex-1 lg:justify-end items-center gap-2">
+          {/* Cart icon with badge */}
+          {session && (
+            <Link href="/cart" className="relative p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md">
+              <ShoppingBag className="h-6 w-6" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-emerald-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartCount > 9 ? '9+' : cartCount}
+                </span>
+              )}
+            </Link>
+          )}
+
           <ThemeToggle />
+          
           {!session ? (
             <>
               <Button variant="outline" onClick={() => signIn()}>
@@ -133,7 +141,6 @@ export default function Navbar2() {
             </>
           ) : (
             <div className="flex items-center gap-4">
-              
               <Menu as="div" className="relative">
                 <MenuButton className="flex items-center p-1.5">
                   <span className="sr-only">Open user menu</span>
@@ -182,16 +189,12 @@ export default function Navbar2() {
                   </MenuItem>
                 </MenuItems>
               </Menu>
-              {/* <Button variant="outline" onClick={() => signOut()}>
-                
-                <FaArrowRightFromBracket className="h-5 w-5 ml-3" />
-              </Button> */}
             </div>
           )}
         </div>
       </nav>
 
-      {/* Mobile menu dialog (animated) */}
+      {/* Mobile menu dialog */}
       <Transition.Root show={mobileMenuOpen} as={Fragment}>
         <Dialog as="div" className="lg:hidden" onClose={setMobileMenuOpen}>
           <div className="fixed inset-0 z-40" />
@@ -222,20 +225,18 @@ export default function Navbar2() {
                     <div className="space-y-2 py-6 justify-center flex flex-col">
                       {navigation.map((item) => (
                         <Link key={item.id} href={item.link} className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold dark:text-gray-50 text-gray-900 dark:hover:bg-gray-700 dark:hover:text-emerald-600 hover:text-emerald-600">
-                  <button type="button" onClick={() => setMobileMenuOpen(false)} className="-m-2.5 rounded-md p-2.5">
-                          {item.text}
+                          <button type="button" onClick={() => setMobileMenuOpen(false)} className="-m-2.5 rounded-md p-2.5">
+                            {item.text}
                           </button>
                         </Link>
                       ))}
 
-                      {/* Theme row: match link styling and place toggle to the far right */}
                       <div className="-mx-3 flex items-center justify-between rounded-lg px-3 py-2 text-base/7 font-semibold dark:text-gray-50 text-gray-900">
                         <span className="">Theme</span>
                         <div className="ml-4">
                           <ThemeToggle className="border border-gray-400 dark:border-gray-50 rounded"/>
                         </div>
                       </div>
-
                     </div>
                     <div className="py-6">
                       {!session ? (
@@ -257,7 +258,7 @@ export default function Navbar2() {
         </Dialog>
       </Transition.Root>
 
-      {/* Mobile bottom navigation (visible on small screens) */}
+      {/* Mobile bottom navigation with cart badge */}
       <nav aria-label="Mobile" className="fixed inset-x-0 bottom-0 z-50 rounded-t-xl bg-white dark:bg-zinc-900 lg:hidden">
         <div className="max-w-3xl mx-auto px-4">
           <div className="flex justify-between items-center h-14">
@@ -275,6 +276,18 @@ export default function Navbar2() {
               <Box className="h-5 w-5" />
               <span className="mt-1">Products</span>
             </Link>
+
+            {session && (
+              <Link href="/cart" className="flex flex-col items-center justify-center text-xs text-gray-700 dark:text-gray-200 relative">
+                <ShoppingBag className="h-5 w-5" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-emerald-600 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                    {cartCount > 9 ? '9+' : cartCount}
+                  </span>
+                )}
+                <span className="mt-1">Cart</span>
+              </Link>
+            )}
 
             <Link href={session ? '/dashboard' : '/auth/signin'} className="flex flex-col items-center justify-center text-xs text-gray-700 dark:text-gray-200">
               <User className="h-5 w-5" />

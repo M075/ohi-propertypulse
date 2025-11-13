@@ -48,7 +48,7 @@ const CutoutTextLoader = ({ height, background, darkBackground, imgUrlDesktop, i
 
       {/* Text with desktop background image */}
       <span
-        className="font-black absolute inset-0 z-20 text-center bg-clip-text text-transparent pointer-events-none hidden md:block"
+        className="font-black dark:text-zinc-50/20 absolute inset-0 z-20 text-center bg-clip-text text-transparent pointer-events-none hidden md:block"
         style={{
           backgroundImage: `url(${imgUrlDesktop})`,
           backgroundPosition: "center",

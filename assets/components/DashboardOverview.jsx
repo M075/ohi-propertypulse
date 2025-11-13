@@ -15,6 +15,8 @@ import {
   Eye,
   Users,
   ShoppingCart,
+  Pencil,
+  PencilIcon,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -29,7 +31,7 @@ const StatsCard = ({ title, value, icon: Icon, trend, color = "emerald" }) => {
   };
 
   return (
-    <Card>
+    <Card className="border-0 shadow-sm bg-zinc-100 dark:bg-zinc-900">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
@@ -71,7 +73,7 @@ const DashboardSkeleton = () => (
 );
 
 // Recent Products Component
-const RecentProducts = ({ products }) => {
+const RecentProducts = ({ products, className }) => {
   if (!products || products.length === 0) {
     return (
       <div className="text-center py-8">
@@ -88,11 +90,13 @@ const RecentProducts = ({ products }) => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className='space-y-4'>
       {products.slice(0, 5).map((product) => (
+          <Link href={`/dashboard/products/edit/${product._id}`}>
+
         <div
           key={product._id}
-          className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+          className="flex items-center justify-between p-4 mb-3 border-0 bg-white dark:bg-zinc-800 rounded-lg hover:bg-muted/90 dark:hover:bg-muted/80 transition-shadow"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-md overflow-hidden bg-muted flex-shrink-0 relative">
@@ -127,12 +131,11 @@ const RecentProducts = ({ products }) => {
               </div>
             </div>
           </div>
-          <Link href={`/dashboard/products/edit/${product._id}`}>
             <Button variant="outline" size="sm">
-              Edit
+              <PencilIcon className="h-4 w-4" />
             </Button>
-          </Link>
         </div>
+          </Link>
       ))}
       {products.length > 5 && (
         <Link href="/dashboard/products">
@@ -190,7 +193,7 @@ const QuickActions = () => {
     <div className="grid gap-4 md:grid-cols-2">
       {actions.map((action) => (
         <Link key={action.title} href={action.href}>
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <Card className="border-0 shadow-sm bg-white dark:bg-zinc-800 hover:bg-muted/50 dark:hover:bg-muted/80 transition-shadow cursor-pointer">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
                 <div className={`p-3 rounded-lg ${colorClasses[action.color]}`}>
@@ -218,7 +221,7 @@ const LowStockAlert = ({ products }) => {
   if (lowStockProducts.length === 0) return null;
 
   return (
-    <Card className="border-orange-200 dark:border-orange-900/50">
+    <Card className="bg-orange-50 border-none dark:bg-yellow-950">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
           <AlertCircle className="h-5 w-5" />
@@ -346,9 +349,9 @@ export default function DashboardOverview() {
       </div>
 
       {/* Quick Actions & Low Stock */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className=" grid gap-4 md:grid-cols-3">
         <div className="md:col-span-2">
-          <Card>
+          <Card className="border-0 shadow-sm bg-zinc-100 dark:bg-zinc-900"> 
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
@@ -361,7 +364,7 @@ export default function DashboardOverview() {
       </div>
 
       {/* Recent Products */}
-      <Card>
+      <Card className="border-0 shadow-sm bg-zinc-100 dark:bg-zinc-900">
         <CardHeader>
           <CardTitle>Recent Products</CardTitle>
         </CardHeader>

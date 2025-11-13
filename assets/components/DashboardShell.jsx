@@ -45,7 +45,7 @@ import Image from "next/image";
 import logo from "@/public/logo.png";
 import AddProductForm from "./AddProductForm";
 import { usePathname } from "next/navigation";
-import { Package, Search, UserIcon } from "lucide-react";
+import { MessageSquareReplyIcon, Package, Search, Send, UserIcon } from "lucide-react";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
@@ -64,8 +64,8 @@ const navigation = [
     icon: Package,
     current: false,
   },
-  { name: "Orders", href: "#", icon: CalendarIcon, current: false },
-  { name: "Documents", href: "#", icon: DocumentDuplicateIcon, current: false },
+  { name: "Orders", href: "/dashboard/orders", icon: CalendarIcon, current: false },
+  { name: "Messages", href: "/dashboard/messages", icon: Send, current: false },
   { name: "Reports", href: "#", icon: ChartPieIcon, current: false },
 ];
 
@@ -198,7 +198,6 @@ export default function DashboardShell({ children }) {
                                   : "text-gray-600 dark:text-gray-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-gray-900 dark:hover:text-white",
                                 "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6",
                               )}
-                              data-oid="lfj:u7q"
                             >
                               <item.icon
                                 aria-hidden="true"
