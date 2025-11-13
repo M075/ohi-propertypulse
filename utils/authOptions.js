@@ -34,15 +34,21 @@ export const authOptions = {
       async authorize(credentials) {
         await connectDB();
         
-        const user = await User.findOne({ email: credentials.email });
+        // Find user and explicitly select password field
+        const user = await User.findOne({ email: credentials.email.toLowerCase().trim() }).select('+password');
         
-        if (!user || !user.password) {
+        if (!user) {
           throw new Error('No user found with this email');
         }
         
-        const isValid = await bcrypt.compare(credentials.password, user.password);
+        if (!user.password) {
+          throw new Error('This account does not have a password. Please sign in with Google or Facebook.');
+        }
         
-        if (!isValid) {
+        // Use the comparePassword method from the model
+        const isPasswordValid = await user.comparePassword(credentials.password);
+        
+        if (!isPasswordValid) {
           throw new Error('Invalid password');
         }
         
@@ -127,7 +133,8 @@ export const authOptions = {
   },
 
   pages: {
-    signIn: '/auth/signin',  // Custom sign-in page
+    signIn: '/auth/signin',  // Custom sign-in pagegn
+    signUp: '/auth/signup',  // Custom sign-up page
     error: '/auth/error',
     newUser: '/onboarding',   // Redirect new users here
   },

@@ -123,15 +123,19 @@ export default function OnboardingFlow() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-zinc-900 dark:to-zinc-800 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-100 to-teal-200 dark:from-zinc-900 dark:to-zinc-800 flex items-center justify-center">
+      <div className="hidden sm:block absolute inset-0 bg-cover bg-center bg-repeat" style={{backgroundImage: "url('/onboarding.jpeg')"}} />
+      <div className="sm:hidden absolute inset-0 bg-cover bg-center bg-no-repeat" style={{backgroundImage: "url('https://plus.unsplash.com/premium_photo-1692444603382-a048297312f5?q=80&w=415&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')"}} />
+
+      <div className="absolute inset-0 bg-zinc-50/30 dark:bg-black/40" />
+      <div className="relative z-10 w-full max-w-6xl px-4">
+      <Card className="border-none bg-zinc-100/80 shadow-lg dark:bg-black/70 px-6 py-6 sm:px-10 lg:px-16 lg:py-6 lg:mt-10 max-w-3xl mx-auto">
         <CardHeader>
-          <div className="flex items-center justify-between mb-4">
-            <CardTitle className="text-2xl">Welcome! Let's Set Up Your Store</CardTitle>
-            <span className="text-sm text-muted-foreground">
-              Step {currentStep} of {totalSteps}
-            </span>
+          <div className="flex flex-row items-center justify-between">
+            <CardTitle className="text-2xl">Welcome! </CardTitle>
+              <span className="text-sm font-semibold text-emerald-600 ml-4">Step {currentStep} of {totalSteps}</span>
           </div>
+          <CardTitle className="text-2xl">Let's Set Up Your Store</CardTitle>
           <Progress value={progress} className="h-2" />
         </CardHeader>
 
@@ -144,7 +148,7 @@ export default function OnboardingFlow() {
                 
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="storename">Store Name *</Label>
+                    <Label htmlFor="storename">Store Name <span className="text-red-500">*</span></Label>
                     <Input
                       id="storename"
                       value={formData.storename}
@@ -161,7 +165,7 @@ export default function OnboardingFlow() {
                   </div>
 
                   <div>
-                    <Label htmlFor="phone">Phone Number *</Label>
+                    <Label htmlFor="phone">Phone Number <span className="text-red-500">*</span></Label>
                     <Input
                       id="phone"
                       type="tel"
@@ -186,7 +190,7 @@ export default function OnboardingFlow() {
               
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="address">Street Address *</Label>
+                  <Label htmlFor="address">Street Address <span className="text-red-500">*</span></Label>
                   <Input
                     id="address"
                     value={formData.address}
@@ -201,7 +205,7 @@ export default function OnboardingFlow() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="city">City *</Label>
+                    <Label htmlFor="city">City <span className="text-red-500">*</span></Label>
                     <Input
                       id="city"
                       value={formData.city}
@@ -226,7 +230,7 @@ export default function OnboardingFlow() {
                 </div>
 
                 <div>
-                  <Label htmlFor="province">Province *</Label>
+                  <Label htmlFor="province">Province <span className="text-red-500">*</span></Label>
                   <Select
                     value={formData.province}
                     onValueChange={(value) => handleChange('province', value)}
@@ -320,6 +324,7 @@ export default function OnboardingFlow() {
           </div>
         </CardContent>
       </Card>
+    </div>
     </div>
   );
 }
