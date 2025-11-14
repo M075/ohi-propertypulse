@@ -23,17 +23,18 @@ export const metadata = {
   keywords:
     "home businesses, home industry, home stores, home store near me, home business near me, home store near me",
   manifest: '/manifest.json',
-  themeColor: '#059669',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'Ohi!',
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#059669',
 };
 
 const MainLayout = ({ children }) => {
