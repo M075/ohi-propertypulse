@@ -22,7 +22,15 @@ import { signIn, signOut, useSession, getProviders } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
 import { FaArrowRightFromBracket } from "react-icons/fa6";
-import { Home, ShoppingBag, Box, User, MessageSquareReplyIcon, MessageSquare, Send } from "lucide-react";
+import {
+  Home,
+  ShoppingBag,
+  Box,
+  User,
+  MessageSquareReplyIcon,
+  MessageSquare,
+  Send,
+} from "lucide-react";
 import { useCart } from "@/assets/contexts/CartContext";
 import { useMessages } from "@/assets/contexts/MessagesContext";
 
@@ -147,7 +155,7 @@ export default function Navbar2() {
 
           <div className="hidden lg:flex lg:flex-1 lg:justify-end items-center gap-2">
             <ThemeToggle />
-            
+
             {/* Cart icon with badge */}
             {session && (
               <>
@@ -179,68 +187,98 @@ export default function Navbar2() {
               </Link>
             ) : (
               <div className="flex items-center gap-4">
-               {session && (
-  <Menu as="div" className="relative">
-    <MenuButton className="flex items-center p-1.5">
-      <span className="sr-only">Open user menu</span>
-      <img
-        alt={session?.user?.name || "profile"}
-        src={profileImage || profile.src}
-        className="h-8 w-8"
-      />
-      <span className="hidden lg:flex lg:items-center">
-        <span aria-hidden="true" className="ml-4 text-sm font-semibold leading-6 text-gray-900 dark:text-gray-50">
-          {session?.user?.name}
-        </span>
-        <ChevronDownIcon aria-hidden="true" className="ml-2 h-5 w-5 text-gray-800 dark:text-gray-100" />
-      </span>
-    </MenuButton>
+                {session && (
+                  <Menu as="div" className="relative">
+                    <MenuButton className="flex items-center p-1.5">
+                      <span className="sr-only">Open user menu</span>
+                      <img
+                        alt={session?.user?.name || "profile"}
+                        src={profileImage || profile.src}
+                        className="h-8 w-8"
+                      />
+                      <span className="hidden lg:flex lg:items-center">
+                        <span
+                          aria-hidden="true"
+                          className="ml-4 text-sm font-semibold leading-6 text-gray-900 dark:text-gray-50"
+                        >
+                          {session?.user?.name}
+                        </span>
+                        <ChevronDownIcon
+                          aria-hidden="true"
+                          className="ml-2 h-5 w-5 text-gray-800 dark:text-gray-100"
+                        />
+                      </span>
+                    </MenuButton>
 
-    <MenuItems className="absolute right-0 z-10 mt-2.5 w-40 origin-top-right rounded-md dark:bg-zinc-900 dark:text-white bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
-      <MenuItem>
-        {({ active }) => (
-          <a href="/dashboard" className={`block px-3 py-1 text-sm leading-6 hover:bg-zinc-50 dark:hover:bg-zinc-800 ${active ? 'bg-zinc-50' : ''}`}>
-            Dashboard
-          </a>
-        )}
-      </MenuItem>
-      <MenuItem>
-        {({ active }) => (
-          <a href="/dashboard/profile" className={`block px-3 py-1 text-sm leading-6 hover:bg-zinc-50 dark:hover:bg-zinc-800 ${active ? 'bg-zinc-50' : ''}`}>
-            Profile
-          </a>
-        )}
-      </MenuItem>
-      <MenuItem>
-        {({ active }) => (
-          <a href="/dashboard/products" className={`block px-3 py-1 text-sm leading-6 hover:bg-zinc-50 dark:hover:bg-zinc-800 ${active ? 'bg-zinc-50' : ''}`}>
-            Products
-          </a>
-        )}
-      </MenuItem>
-      <MenuItem>
-        {({ active }) => (
-          <a href="/dashboard/messages" className={`flex items-center justify-between px-3 py-1 text-sm leading-6 hover:bg-zinc-50 dark:hover:bg-zinc-800 ${active ? 'bg-zinc-50' : ''}`}>
-            <span>Messages</span>
-            {unreadCount > 0 && (
-              <span className="bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </a>
-        )}
-      </MenuItem>
-      <MenuItem>
-        {({ active }) => (
-          <button onClick={() => signOut()} className={`w-full text-left block px-3 py-1 text-sm leading-6 hover:bg-zinc-50 dark:hover:bg-zinc-800 ${active ? 'bg-zinc-50' : ''}`}>
-            Sign out
-          </button>
-        )}
-      </MenuItem>
-    </MenuItems>
-  </Menu>
-)}
-
+                    <MenuItems className="absolute right-0 z-10 mt-2.5 w-40 origin-top-right rounded-md dark:bg-zinc-900 dark:text-white bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
+                      <MenuItem>
+                        {({ active }) => (
+                          <a
+                            href="/dashboard"
+                            className={`block px-3 py-1 text-sm leading-6 hover:bg-zinc-50 dark:hover:bg-zinc-800 ${
+                              active ? "bg-zinc-50" : ""
+                            }`}
+                          >
+                            Dashboard
+                          </a>
+                        )}
+                      </MenuItem>
+                      <MenuItem>
+                        {({ active }) => (
+                          <a
+                            href="/dashboard/profile"
+                            className={`block px-3 py-1 text-sm leading-6 hover:bg-zinc-50 dark:hover:bg-zinc-800 ${
+                              active ? "bg-zinc-50" : ""
+                            }`}
+                          >
+                            Profile
+                          </a>
+                        )}
+                      </MenuItem>
+                      <MenuItem>
+                        {({ active }) => (
+                          <a
+                            href="/dashboard/products"
+                            className={`block px-3 py-1 text-sm leading-6 hover:bg-zinc-50 dark:hover:bg-zinc-800 ${
+                              active ? "bg-zinc-50" : ""
+                            }`}
+                          >
+                            Products
+                          </a>
+                        )}
+                      </MenuItem>
+                      <MenuItem>
+                        {({ active }) => (
+                          <a
+                            href="/dashboard/messages"
+                            className={`flex items-center justify-between px-3 py-1 text-sm leading-6 hover:bg-zinc-50 dark:hover:bg-zinc-800 ${
+                              active ? "bg-zinc-50" : ""
+                            }`}
+                          >
+                            <span>Messages</span>
+                            {unreadCount > 0 && (
+                              <span className="bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                {unreadCount > 9 ? "9+" : unreadCount}
+                              </span>
+                            )}
+                          </a>
+                        )}
+                      </MenuItem>
+                      <MenuItem>
+                        {({ active }) => (
+                          <button
+                            onClick={() => signOut()}
+                            className={`w-full text-left block px-3 py-1 text-sm leading-6 hover:bg-zinc-50 dark:hover:bg-zinc-800 ${
+                              active ? "bg-zinc-50" : ""
+                            }`}
+                          >
+                            Sign out
+                          </button>
+                        )}
+                      </MenuItem>
+                    </MenuItems>
+                  </Menu>
+                )}
               </div>
             )}
           </div>
@@ -385,16 +423,19 @@ export default function Navbar2() {
                 </Link>
               )}
               {session && (
-  <Link href="/dashboard/messages" className="flex flex-col items-center justify-center text-xs text-gray-700 dark:text-gray-200 relative">
-    <MessageSquareReplyIcon className="h-5 w-5" />
-    {unreadCount > 0 && (
-      <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
-        {unreadCount > 9 ? '9+' : unreadCount}
-      </span>
-    )}
-    <span className="mt-1">Messages</span>
-  </Link>
-)}
+                <Link
+                  href="/dashboard/messages"
+                  className="flex flex-col items-center justify-center text-xs text-gray-700 dark:text-gray-200 relative"
+                >
+                  <Send className="h-5 w-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 right-2.5 bg-red-600 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
+                  <span className="mt-1">Messages</span>
+                </Link>
+              )}
               <Link
                 href={session ? "/dashboard" : "/auth/signin"}
                 className="flex flex-col items-center justify-center text-xs text-gray-700 dark:text-gray-200"

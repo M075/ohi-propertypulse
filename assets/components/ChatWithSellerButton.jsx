@@ -81,12 +81,12 @@ export default function ChatWithSellerButton({
         const data = await res.json();
         toast({
           title: "Message sent",
-          description: "Your message has been sent successfully",
+          description: "Your message has been sent successfully. See your messages on your profile.",
         });
         setOpen(false);
         setMessage("");
         // Redirect to messages with conversation selected
-        router.push(`/dashboard/messages?conversation=${data.conversation._id}`);
+        // router.push(`/dashboard/messages?conversation=${data.conversation._id}`);
       } else {
         throw new Error("Failed to send message");
       }
@@ -114,10 +114,10 @@ export default function ChatWithSellerButton({
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="w-[95vw] sm:w-full max-h-[90vh] shadow-lg backdrop-blur-md bg-zinc-100/20 dark:bg-zinc-900/20 sm:max-h-none border-none rounded-lg sm:rounded-lg">
           <DialogHeader>
-            <DialogTitle>Send Message</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-lg sm:text-xl">Send Message</DialogTitle>
+            <DialogDescription className="text-sm sm:text-base">
               {productTitle 
                 ? `Send a message about "${productTitle}"`
                 : "Send a message to the seller"
@@ -125,17 +125,17 @@ export default function ChatWithSellerButton({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="py-4">
+          <div className="py-4 max-h-[40vh] sm:max-h-none">
             <Textarea
               placeholder="Hi, I'm interested in this product..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={4}
-              className="resize-none"
+              className="resize-none text-sm sm:text-base"
             />
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-0">
             <Button
               variant="outline"
               onClick={() => {
@@ -143,10 +143,15 @@ export default function ChatWithSellerButton({
                 setMessage("");
               }}
               disabled={loading}
+              className="w-full sm:w-auto"
             >
               Cancel
             </Button>
-            <Button onClick={handleSendMessage} disabled={loading || !message.trim()}>
+            <Button 
+              onClick={handleSendMessage} 
+              disabled={loading || !message.trim()}
+              className="w-full sm:w-auto"
+            >
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
