@@ -10,7 +10,7 @@ import "@/assets/styles/globals.css";
 import Footer from "@/assets/components/Footer";
 import Providers from "@/assets/components/Providers";
 import { Toaster } from "@/components/ui/toaster";
-import Navbar from "@/assets/components/Navbar2";
+import Navbar from "@/assets/components/Navbar";
 import DisableZoom from "@/app/DisableZoom";
 import MobileLayoutWrapper from "@/assets/components/MobileLayoutWrapper";
 
