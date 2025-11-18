@@ -6,15 +6,12 @@ import { ChevronDown, ChevronUp, Maximize2, Minimize2, Navigation, Layers } from
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
-export default function MapLibreStoresMap({ stores = [], onStoreSelect }) {
+export default function MapLibreStoresMap({ stores = [], onStoreSelect, isFullscreen = false }) {
   const mapContainer = useRef(null);
   const map = useRef(null);
   const markers = useRef([]);
   
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(window.innerWidth < 768);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [mapStyle, setMapStyle] = useState('carto-light');
   const [showTileMenu, setShowTileMenu] = useState(false);
   const layersButtonRef = useRef(null);
@@ -129,25 +126,12 @@ export default function MapLibreStoresMap({ stores = [], onStoreSelect }) {
   }, [resolvedTheme, theme]);
 
   
-  useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      if (mobile && !isCollapsed) {
-        setIsCollapsed(true);
-      }
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [isCollapsed]);
-  
   const storesWithCoordinates = stores.filter(
     store => store.latitude && store.longitude
   );
   
   useEffect(() => {
-    if (!mapContainer.current || storesWithCoordinates.length === 0 || (isMobile && isCollapsed)) return;
+    if (!mapContainer.current || storesWithCoordinates.length === 0) return;
     
     if (!map.current) {
       map.current = new maplibregl.Map({
@@ -250,7 +234,7 @@ export default function MapLibreStoresMap({ stores = [], onStoreSelect }) {
       markers.current.forEach(marker => marker.remove());
       markers.current = [];
     };
-  }, [storesWithCoordinates, onStoreSelect, isMobile, isCollapsed, mapStyle]);
+  }, [storesWithCoordinates, onStoreSelect, mapStyle]);
   
   const changeMapStyle = (newStyle) => {
     // set state first so initial map creation uses this value
@@ -264,8 +248,6 @@ export default function MapLibreStoresMap({ stores = [], onStoreSelect }) {
     }
   };
   
-  const mapHeight = isFullscreen ? 'h-screen' : isExpanded ? 'h-96' : 'h-64';
-  
   if (storesWithCoordinates.length === 0) {
     return (
       <Card className="p-8 mt-10 text-center bg-gray-50 dark:bg-zinc-900">
@@ -277,64 +259,8 @@ export default function MapLibreStoresMap({ stores = [], onStoreSelect }) {
   }
   
   return (
-    <div className={`relative mt-12 rounded-xl ${isFullscreen ? 'fixed inset-0 z-50 bg-white dark:bg-zinc-900' : 'mb-8'}`}>
-      {isMobile && !isFullscreen && (
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="w-full flex items-center justify-between p-4 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-gray-800 rounded-t-lg hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
-        >
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-emerald-100 dark:bg-emerald-900 rounded-lg">
-              <svg className="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-              </svg>
-            </div>
-            <div className="text-left">
-              <h3 className="font-semibold text-gray-900 dark:text-white">Map View</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {storesWithCoordinates.length} stores on map
-              </p>
-            </div>
-          </div>
-          {isCollapsed ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
-        </button>
-      )}
-      
-      {(!isMobile || !isCollapsed) && (
-        <div className={`relative ${mapHeight} transition-all duration-300 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-800`}>
+    <div className="relative w-full h-full">
           <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-            {!isMobile && (
-              <>
-                {/* <Button
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="bg-white dark:bg-zinc-900 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 shadow-lg"
-                  size="sm"
-                  variant="outline"
-                  disabled={isFullscreen}
-                >
-                  {isExpanded ? 'Shrink' : 'Expand'}
-                </Button> */}
-                <Button
-                  onClick={() => setIsFullscreen(!isFullscreen)}
-                  className="bg-white dark:bg-zinc-900 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 shadow-lg"
-                  size="icon"
-                  variant="outline"
-                >
-                  {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-                </Button>
-              </>
-            )}
-            {isMobile && (
-              <Button
-                onClick={() => setIsFullscreen(!isFullscreen)}
-                className="bg-white dark:bg-zinc-900 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800 shadow-lg"
-                size="sm"
-                variant="outline"
-              >
-                {isFullscreen ? 'Exit' : 'Fullscreen'}
-              </Button>
-            )}
-            
             <div className="relative">
               <Button
                 ref={layersButtonRef}
@@ -375,8 +301,6 @@ export default function MapLibreStoresMap({ stores = [], onStoreSelect }) {
           
           <div ref={mapContainer} className="h-full w-full" />
         </div>
-      )}
-    </div>
   );
 }
 

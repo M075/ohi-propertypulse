@@ -1,23 +1,23 @@
-"use client";
+'use client'
 import React, { useState, useEffect } from "react";
 import StoreFilterSort from "@/assets/components/StoreFilterSort";
-// import StoresMapView from "@/assets/components/StoresMapView";
 import Loading from "@/app/loading";
 import Image from "next/image";
-// Use MapLibre (recommended)
 import StoresMapView from '@/assets/components/MapLibreStoresMap';
-import GradientBG from "@/assets/components/GradientBG";
-
-// OR use Mapbox if you have API key
-// import StoresMapView from '@/assets/components/MapboxStoresMap';
+import { Button } from "@/components/ui/button";
+import { Map, X } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 const StoresPage = () => {
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedStoreId, setSelectedStoreId] = useState(null);
+  const [showMapDialog, setShowMapDialog] = useState(false);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Fetch all stores once on mount
   useEffect(() => {
     const fetchStores = async () => {
       try {
@@ -59,7 +59,6 @@ const StoresPage = () => {
 
   const handleStoreSelect = (storeId) => {
     setSelectedStoreId(storeId);
-    // Highlight effect will be handled by the store card
   };
 
   if (loading) return <Loading />;
@@ -90,9 +89,9 @@ const StoresPage = () => {
   ];
 
   return (
-    <div className="bg-radial-[at_bottom] from-white to-emerald-600/30  dark:from-zinc-900/30 dark:to-emerald-800/30">
+    <div className="bg-radial from-white/20 to-emerald-600/10 dark:from-zinc-900/10 dark:to-emerald-800/70">
       {/* Hero Section */}
-      <div className="relative isolate overflow-hidden pb-10 -mt-8 sm:py-20 ">
+      <div className="relative isolate overflow-hidden pb-10 -mt-8 sm:py-20">
         <Image
           height={1500}
           width={2830}
@@ -135,19 +134,39 @@ const StoresPage = () => {
         </div>
       </div>
 
-      {/* Map Section */}
-         
-      <div className="container-xl lg:container m-auto -mt-8 px-4 sm:px-10 mb-8">
-        <StoresMapView 
-          stores={stores} 
-          onStoreSelect={handleStoreSelect}
-        />
-      </div>
+      {/* Map Dialog - Full Screen on Mobile */}
+      <Dialog open={showMapDialog} onOpenChange={setShowMapDialog}>
+        <DialogTitle className="sr-only">Stores Map</DialogTitle>
+        <DialogContent className="w-screen h-screen max-w-none p-0 gap-0 border-none">
+          <div className="relative w-full h-full">
+            {/* Close Button */}
+            <Button
+              onClick={() => setShowMapDialog(false)}
+              variant="outline"
+              size="icon"
+              className="absolute top-2 right-12 z-50 border-white bg-red-600/90 dark:bg-red-600 shadow-lg"
+            >
+              <X className="h-5 w-5 text-white" />
+            </Button>
+            
+            {/* Map Component */}
+            <div className="w-full h-full">
+              <StoresMapView 
+                stores={stores} 
+                onStoreSelect={(storeId) => {
+                  handleStoreSelect(storeId);
+                  setShowMapDialog(false);
+                }}
+              />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Stores Grid Section */}
-      <div className="container-xl lg:container m-auto p-10 ">
+      <div className="container-xl lg:container m-auto p-4 sm:p-10">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2 text-foreground">
+          <h1 className="text-4xl font-bold mb-2 mt-6 text-foreground">
             All Stores
           </h1>
           <p className="text-muted-foreground">
@@ -159,8 +178,10 @@ const StoresPage = () => {
           stores={stores} 
           onLike={handleLike}
           selectedStoreId={selectedStoreId}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          onMapClick={() => setShowMapDialog(true)}
         />
-        
       </div>
     </div>
   );

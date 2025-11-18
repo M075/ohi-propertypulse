@@ -119,3 +119,18 @@ html, body {
 .maplibregl-popup-close-button {
   @apply dark:text-white;
 }
+
+.maplibregl-popup-close-button {
+  font-size: 24px !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  transition: all 0.2s !important;
+}
+
+.maplibregl-popup-close-button:hover {
+  background: #ef4444 !important; /* Red on hover */
+  color: white !important;
+  transform: scale(1.1) !important;
+}

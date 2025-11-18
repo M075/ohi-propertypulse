@@ -1,5 +1,11 @@
 import React from 'react';
 import StoreCard from '@/assets/components/StoreCard';
+import StoreListCard from '@/assets/components/StoreListCard';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Map, Grid3x3, List } from 'lucide-react';
+import { MagnifyingGlassCircleIcon } from '@heroicons/react/24/solid';
 
 const provinces = [
   "All Provinces",
@@ -14,7 +20,7 @@ const provinces = [
   "North West"
 ];
 
-export default function StoreFilterSort({ stores = [], onLike, selectedStoreId }) {
+export default function StoreFilterSort({ stores = [], onLike, selectedStoreId, viewMode, onViewModeChange, onMapClick }) {
   const [search, setSearch] = React.useState('');
   const [province, setProvince] = React.useState('All Provinces');
   const [sortBy, setSortBy] = React.useState('createdAt');
@@ -72,49 +78,84 @@ export default function StoreFilterSort({ stores = [], onLike, selectedStoreId }
 
   return (
     <div className="mb-6">
-      <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center mb-6">
-        <input
+      {/* Controls Bar */}
+      <div className="flex flex-row items-center gap-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md p-3 sm:p-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 mb-6">
+        {/* Map Button */}
+        {onMapClick && (
+          <Button
+            onClick={onMapClick}
+            variant="outline"
+            size="sm"
+            className="shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white border-none"
+          >
+            <Map className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Map</span>
+          </Button>
+        )}
+
+        {/* Search Input - Takes remaining space */}
+        <Input
           aria-label="Search stores"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by store name or description"
-          className="w-full md:w-2/3 px-3 py-2 rounded border dark:bg-zinc-900 dark:text-white bg-white text-gray-900"
+          placeholder="Search..."
+          className="flex-1 min-w-[120px] h-9 px-3 py-2 dark:bg-zinc-900 dark:text-white bg-white text-gray-900 text-sm"
         />
 
-        <select
+        {/* Province Select */}
+        <Select
           value={province}
-          onChange={(e) => setProvince(e.target.value)}
-          className="w-full md:w-1/6 pl-3 pr-10 py-2 rounded border dark:bg-zinc-900 dark:text-white bg-white text-gray-900"
+          onValueChange={(value) => setProvince(value)}
         >
-          {provinces.map((prov) => (
-            <option key={prov} value={prov}>
-              {prov}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="hidden sm:block sm:w-1/6 h-9 px-3 py-2 text-sm dark:bg-zinc-900 dark:text-white bg-white text-gray-900 border">
+            <SelectValue placeholder="Province" />
+          </SelectTrigger>
+          <SelectContent className="bg-white/10 dark:bg-black/10 backdrop-blur-md">
+            {provinces.map((prov) => (
+              <SelectItem key={prov} value={prov} className="cursor-pointer hover:bg-emerald-600/30 text-sm">
+                {prov.length > 10 ? prov.substring(0, 10) + '...' : prov}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-        <select
+        {/* Sort Select */}
+        <Select
           value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          className="w-full md:w-1/6 px-3 py-2 rounded border dark:bg-zinc-900 dark:text-white bg-white text-gray-900"
+          onValueChange={(value) => setSortBy(value)}
         >
-          <option value="createdAt">Date Added</option>
-          <option value="storename">Store Name</option>
-          <option value="city">City</option>
-          <option value="province">Province</option>
-        </select>
+          <SelectTrigger className="hidden sm:block sm:w-1/6 h-9 px-3 py-2 text-sm dark:bg-zinc-900 dark:text-white bg-white text-gray-900 border">
+            <SelectValue placeholder="Sort" />
+          </SelectTrigger>
+          <SelectContent className="bg-white/10 dark:bg-black/10 backdrop-blur-md">
+            <SelectItem value="createdAt" className="cursor-pointer hover:bg-emerald-600/30 text-sm">Date Added</SelectItem>
+            <SelectItem value="storename" className="cursor-pointer hover:bg-emerald-600/30 text-sm">Store Name</SelectItem>
+            <SelectItem value="city" className="cursor-pointer hover:bg-emerald-600/30 text-sm">City</SelectItem>
+            <SelectItem value="province" className="cursor-pointer hover:bg-emerald-600/30 text-sm">Province</SelectItem>
+          </SelectContent>
+        </Select>
 
-        <button
-          type="button"
-          onClick={() => {
-            setSearch('');
-            setProvince('All Provinces');
-            setSortBy('createdAt');
-          }}
-          className="px-4 py-2 rounded bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
-        >
-          Reset
-        </button>
+        {/* View Toggle */}
+        {onViewModeChange && (
+          <div className="flex gap-1 bg-gray-100 dark:bg-zinc-800 rounded-lg p-1 shrink-0">
+            <Button
+              onClick={() => onViewModeChange('grid')}
+              variant={viewMode === 'grid' ? 'default' : 'ghost'}
+              size="sm"
+              className={`h-8 w-8 p-0 ${viewMode === 'grid' ? 'bg-emerald-600 text-white' : ''}`}
+            >
+              <Grid3x3 className="h-4 w-4" />
+            </Button>
+            <Button
+              onClick={() => onViewModeChange('list')}
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              className={`h-8 w-8 p-0 ${viewMode === 'list' ? 'bg-emerald-600 text-white' : ''}`}
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Render filtered results */}
@@ -125,9 +166,30 @@ export default function StoreFilterSort({ stores = [], onLike, selectedStoreId }
             Try adjusting your filters or check back later
           </p>
         </div>
+      ) : viewMode === 'list' ? (
+        <div className="space-y-4">
+          {filteredStores.map(store => (
+            <StoreListCard 
+              key={store._id} 
+              shop={{
+                id: store._id,
+                name: store.storename,
+                avatar: store.image || '/profile.png',
+                likes: store.likes || 0,
+                totalProducts: 0,
+                isLiked: store.isLiked || false,
+                province: store.province,
+                city: store.city,
+                about: store.about,
+              }}
+              onLike={onLike}
+              isHighlighted={selectedStoreId === store._id}
+            />
+          ))}
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredStores.map((store) => (
+          {filteredStores.map(store => (
             <StoreCard
               key={store._id}
               shop={{
