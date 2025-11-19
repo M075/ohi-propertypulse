@@ -110,7 +110,30 @@ const OrderSchema = new Schema(
       enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
       default: 'pending',
     },
-    
+    // Courier information
+  courierProvider: {
+    type: String,
+    enum: ['courier-guy', 'fastway', 'pudo', null],
+  },
+  courierReference: String,
+  shippedAt: Date,
+  
+  // Update status enum to include more states
+  status: {
+    type: String,
+    enum: [
+      'pending',
+      'confirmed', 
+      'processing',
+      'awaiting_courier',
+      'shipped',
+      'in_transit',
+      'out_for_delivery',
+      'delivered',
+      'cancelled'
+    ],
+    default: 'pending',
+  },
     // Tracking
     trackingNumber: String,
     trackingUrl: String,

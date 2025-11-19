@@ -141,12 +141,57 @@ const UserSchema = new Schema(
       type: Boolean,
       default: true,
     },
+  
+  // Admin privileges
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  },
+  adminRole: {
+    type: String,
+    enum: ['super_admin', 'admin', 'moderator', null],
+    default: null,
+  },
+  adminPermissions: [{
+    type: String,
+    enum: [
+      'manage_users',
+      'manage_products',
+      'manage_orders',
+      'manage_sellers',
+      'view_analytics',
+      'manage_settings',
+      'manage_couriers'
+    ],
+  }],
   },
   {
     timestamps: true,
   }
 );
 
+// Pre-save hook to set admin based on email
+UserSchema.pre('save', function(next) {
+  const adminEmails = (process.env.ADMIN_EMAILS || '').split(',');
+  if (adminEmails.includes(this.email)) {
+    this.isAdmin = true;
+    if (!this.adminRole) {
+      this.adminRole = 'super_admin';
+    }
+    if (!this.adminPermissions || this.adminPermissions.length === 0) {
+      this.adminPermissions = [
+        'manage_users',
+        'manage_products',
+        'manage_orders',
+        'manage_sellers',
+        'view_analytics',
+        'manage_settings',
+        'manage_couriers'
+      ];
+    }
+  }
+  next();
+});
 // Hash password before saving
 UserSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
