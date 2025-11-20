@@ -97,7 +97,7 @@ const StoreDetailPage = () => {
 
           {/* About / Details card below */}
           <div className="w-full md:w-3/4 lg:w-2/3 mt-6">
-            <Card className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700">
+            <Card>
               <CardContent className="p-6 space-y-4">
                 <div>
                   <h3 className="font-semibold mb-2 flex items-center gap-2">
@@ -110,7 +110,9 @@ const StoreDetailPage = () => {
                 </div>
 
                 <div className="border-t pt-4">
-                  <h3 className="font-semibold mb-2">Location</h3>
+                  <h3 className="flex items-center gap-2 font-semibold mb-2">
+                  <MapPin className="h-5 w-5" />
+                    Location</h3>
                   <div className="space-y-2 text-sm">
                     {store.city && (
                       <p className="text-muted-foreground">{store.city}</p>
@@ -128,7 +130,6 @@ const StoreDetailPage = () => {
                     sellerId={store._id}
                     storeId={store._id}
                     className="w-full"
-                    variant="outline"
                   />
                 </div>
                 <div className="border-t pt-4">
@@ -156,7 +157,7 @@ const StoreDetailPage = () => {
           {products.length === 0 ? (
             <Card>
               <CardContent className="p-12 text-center">
-                <Store className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                <Store className="h-16 w-16 mx-auto mb-4 text-emerald-600" />
                 <h3 className="text-xl font-semibold mb-2">No Products Yet</h3>
                 <p className="text-muted-foreground">
                   This store hasn't listed any products yet.
