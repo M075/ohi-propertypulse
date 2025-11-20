@@ -1,4 +1,4 @@
-/* styles/globals.css or your global CSS file */
+/* styles/globals.css */
 html, body {
   touch-action: manipulation;
   -webkit-touch-callout: none;
@@ -13,31 +13,30 @@ html, body {
 * {
   touch-action: manipulation;
 }
-
-@import "tailwindcss";
-  
-@custom-variant dark (&:where(.dark, .dark *));
-
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* @custom-variant dark (&:where(.dark, .dark *)); */
 @layer base {
   :root {
+    /* color-scheme: light; */
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-  /* primary set to #059669 */
-  --primary: 161.4 93.6% 30.4%; /* #059669 */
-  --primary-foreground: 0 0% 100%; /* white */
+    --primary: oklch(0.885 0.062 18.334); /* #059669 */
+    --primary-foreground: 0 0% 100%; /* white */
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
     --accent: 240 4.8% 95.9%;
     --accent-foreground: 240 5.9% 10%;
-    --destructive: 359 100% 60%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --success: 	161.4 93.6% 30.4%;
+    --success: 161.4 93.6% 30.4%;
     --success-foreground: 0 0% 100%;
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
@@ -46,30 +45,36 @@ html, body {
   }
 
   .dark {
+    /* color-scheme: dark; */
     --background: 20 14.3% 4.1%;
     --foreground: 0 0% 95%;
     --card: 24 9.8% 10%;
     --card-foreground: 0 0% 95%;
     --popover: 0 0% 9%;
     --popover-foreground: 0 0% 95%;
-  /* dark mode primary: #059669 */
-  --primary: 161.4 93.6% 30.4%; /* #059669 */
-  --primary-foreground: 0 0% 100%; /* white */
+    --primary: 161.4 93.6% 30.4%; /* #059669 */
+    --primary-foreground: 0 0% 100%; /* white */
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 15%;
     --muted-foreground: 240 5% 64.9%;
     --accent: 12 6.5% 15.1%;
     --accent-foreground: 0 0% 98%;
-    --destructive: 359 100% 60%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 85.7% 97.3%;
-    --success: 	161.4 93.6% 30.4%;
+    --success: 161.4 93.6% 30.4%;
     --success-foreground: 0 0% 100%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 142.4 71.8% 29.2%;
   }
 }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
 
 /* Leaflet overrides for dark mode */
 .leaflet-popup-content-wrapper,
@@ -85,39 +90,6 @@ html, body {
 
 .dark .leaflet-popup-close-button {
   color: white !important;
-}
-
-/* Custom cluster styling */
-.marker-cluster-small {
-  background-color: rgba(16, 185, 129, 0.6);
-}
-
-.marker-cluster-small div {
-  background-color: rgba(16, 185, 129, 0.8);
-}
-
-.marker-cluster-medium {
-  background-color: rgba(251, 191, 36, 0.6);
-}
-
-.marker-cluster-medium div {
-  background-color: rgba(251, 191, 36, 0.8);
-}
-
-.marker-cluster-large {
-  background-color: rgba(239, 68, 68, 0.6);
-}
-
-.marker-cluster-large div {
-  background-color: rgba(239, 68, 68, 0.8);
-}
-
-.maplibregl-popup-content {
-  @apply dark:bg-zinc-900 dark:text-white;
-}
-
-.maplibregl-popup-close-button {
-  @apply dark:text-white;
 }
 
 .maplibregl-popup-close-button {
