@@ -1,4 +1,4 @@
-// models/Order.js
+// models/Order.js - FIXED VERSION with seller field
 import mongoose from 'mongoose';
 const { Schema, model, models } = mongoose;
 
@@ -6,11 +6,6 @@ const OrderItemSchema = new Schema({
   product: {
     type: Schema.Types.ObjectId,
     ref: 'Product',
-    required: true,
-  },
-  seller: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
     required: true,
   },
   quantity: {
@@ -30,7 +25,6 @@ const OrderItemSchema = new Schema({
   }
 });
 
-
 const ShippingAddressSchema = new Schema({
   fullName: String,
   phone: String,
@@ -38,25 +32,39 @@ const ShippingAddressSchema = new Schema({
   apartment: String,
   city: String,
   province: String,
-  postalCode: String,
+  zipCode: String,
   country: { type: String, default: 'South Africa' },
 });
 
 const OrderSchema = new Schema(
   {
-    // Order identification
+    // FIXED: Added both buyer and seller at order level
     buyer: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
+    buyerEmail: {
+      type: String,
+      required: true,
+    },
+    seller: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    sellerName: {
+      type: String,
+    },
+    
+    // Order identification
     orderNumber: {
       type: String,
       unique: true,
       required: true,
     },
     
-    // Order items
+    // Order items (all from same seller in this order)
     items: [OrderItemSchema],
     
     // Pricing
@@ -64,7 +72,7 @@ const OrderSchema = new Schema(
       type: Number,
       required: true,
     },
-    shippingCost: {
+    shipping: {
       type: Number,
       required: true,
       default: 0,
@@ -90,7 +98,7 @@ const OrderSchema = new Schema(
     // Payment
     paymentMethod: {
       type: String,
-      enum: ['payfast', 'eft', 'cash_on_delivery'],
+      enum: ['payfast', 'eft', 'cash_on_delivery', 'card'],
       required: true,
     },
     paymentStatus: {
@@ -107,38 +115,28 @@ const OrderSchema = new Schema(
     // Order Status
     status: {
       type: String,
-      enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+      enum: ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'],
       default: 'pending',
     },
-    // Courier information
-  courierProvider: {
-    type: String,
-    enum: ['courier-guy', 'fastway', 'pudo', null],
-  },
-  courierReference: String,
-  shippedAt: Date,
-  
-  // Update status enum to include more states
-  status: {
-    type: String,
-    enum: [
-      'pending',
-      'confirmed', 
-      'processing',
-      'awaiting_courier',
-      'shipped',
-      'in_transit',
-      'out_for_delivery',
-      'delivered',
-      'cancelled'
-    ],
-    default: 'pending',
-  },
+    
+    // Status timestamps
+    confirmedAt: Date,
+    shippedAt: Date,
+    deliveredAt: Date,
+    cancelledAt: Date,
+    
     // Tracking
     trackingNumber: String,
     trackingUrl: String,
     
-    // Timestamps for status changes
+    // Courier information
+    courierProvider: {
+      type: String,
+      enum: ['courier-guy', 'fastway', 'pudo', null],
+    },
+    courierReference: String,
+    
+    // Status history
     statusHistory: [{
       status: String,
       timestamp: Date,
@@ -146,11 +144,10 @@ const OrderSchema = new Schema(
     }],
     
     // Notes
-    buyerNotes: String,
+    customerNotes: String,
     sellerNotes: String,
     
     // Cancellation
-    cancelledAt: Date,
     cancellationReason: String,
   },
   {
@@ -158,7 +155,7 @@ const OrderSchema = new Schema(
   }
 );
 
-// Generate order number
+// Generate unique order number
 OrderSchema.pre('save', async function(next) {
   if (!this.orderNumber) {
     const date = new Date();
@@ -171,11 +168,23 @@ OrderSchema.pre('save', async function(next) {
   next();
 });
 
+// Add status history when status changes
+OrderSchema.pre('save', function(next) {
+  if (this.isModified('status')) {
+    this.statusHistory.push({
+      status: this.status,
+      timestamp: new Date(),
+    });
+  }
+  next();
+});
+
 // Indexes for faster queries
 OrderSchema.index({ buyer: 1, createdAt: -1 });
 OrderSchema.index({ seller: 1, createdAt: -1 });
 OrderSchema.index({ orderNumber: 1 });
 OrderSchema.index({ status: 1 });
+OrderSchema.index({ paymentStatus: 1 });
 
 const Order = models.Order || model('Order', OrderSchema);
 
