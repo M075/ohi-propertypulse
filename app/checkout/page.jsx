@@ -131,9 +131,11 @@ export default function CheckoutPage() {
         throw new Error(data.error || 'Checkout failed');
       }
 
+      // Display order numbers created
+      const orderNumbers = data.orders?.map(o => o.orderNumber).join(', ') || 'Unknown';
       toast({
         title: "Success",
-        description: "Order created successfully",
+        description: `Order(s) created successfully. Order#: ${orderNumbers}`,
       });
 
       // Handle payment redirection
@@ -141,8 +143,13 @@ export default function CheckoutPage() {
         // Redirect to PayFast payment
         window.location.href = data.paymentUrl;
       } else {
-        // Redirect to order confirmation
-        router.push(`/dashboard/orders/${data.order._id}`);
+        // Redirect to order confirmation (first order)
+        const firstOrderId = data.orders?.[0]?._id;
+        if (firstOrderId) {
+          router.push(`/dashboard/orders/${firstOrderId}`);
+        } else {
+          router.push('/dashboard/purchases');
+        }
       }
     } catch (error) {
       console.error('Checkout error:', error);
@@ -308,7 +315,7 @@ export default function CheckoutPage() {
             </section>
 
             {/* Payment Details */}
-            <section aria-labelledby="payment-heading" className="mt-10">
+            {/* <section aria-labelledby="payment-heading" className="mt-10">
               <h2 id="payment-heading" className="text-lg font-medium text-gray-900 dark:text-white">
                 Payment details
               </h2>
@@ -386,7 +393,7 @@ export default function CheckoutPage() {
                   </div>
                 </div>
               </div>
-            </section>
+            </section> */}
 
             {/* Shipping Address */}
             <section aria-labelledby="shipping-heading" className="mt-10">
