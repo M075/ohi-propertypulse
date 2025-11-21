@@ -1,4 +1,4 @@
-// app/api/checkout/route.js - ENHANCED VERSION
+// app/api/checkout/route.js - FIXED VERSION
 import connectDB from '@/config/database';
 import mongoose from 'mongoose';
 import Order from '@/models/Order';
@@ -68,6 +68,7 @@ export async function POST(request) {
     const sessionUser = await getSessionUser();
 
     if (!sessionUser?.userId) {
+      console.error('❌ Unauthorized: No user session');
       return jsonResponse({ error: 'Unauthorized - Please sign in' }, 401);
     }
 
@@ -76,7 +77,7 @@ export async function POST(request) {
     try {
       body = await request.json();
     } catch (parseError) {
-      console.error('Failed to parse request body:', parseError);
+      console.error('❌ Failed to parse request body:', parseError);
       return jsonResponse({ 
         error: 'Invalid request format',
         details: 'Request body must be valid JSON'
@@ -94,6 +95,7 @@ export async function POST(request) {
 
     // Validate required fields
     if (!shippingAddress) {
+      console.error('❌ Missing shipping address');
       return jsonResponse({ 
         error: 'Shipping address is required',
         field: 'shippingAddress'
@@ -102,10 +104,18 @@ export async function POST(request) {
 
     // Normalize address - handle both 'region' and 'province' field names
     const normalizedAddress = {
-      ...shippingAddress,
+      fullName: shippingAddress.fullName || '',
+      email: shippingAddress.email || '',
+      phone: shippingAddress.phone || '',
+      company: shippingAddress.company || '',
+      address: shippingAddress.address || '',
+      apartment: shippingAddress.apartment || '',
+      city: shippingAddress.city || '',
       province: shippingAddress.province || shippingAddress.region || '',
       postalCode: shippingAddress.postalCode || shippingAddress.zipCode || '',
     };
+
+    console.log('📍 Normalized address:', normalizedAddress);
 
     // Validate shipping address
     const addressValidation = validateShippingAddress(normalizedAddress);
@@ -121,6 +131,7 @@ export async function POST(request) {
     // Get buyer details
     const buyer = await User.findById(sessionUser.userId);
     if (!buyer) {
+      console.error('❌ Buyer not found:', sessionUser.userId);
       return jsonResponse({ error: 'User not found' }, 404);
     }
 
@@ -138,6 +149,7 @@ export async function POST(request) {
       });
 
     if (!cart || cart.items.length === 0) {
+      console.error('❌ Cart is empty');
       return jsonResponse({ 
         error: 'Cart is empty',
         message: 'Please add items to your cart before checking out'
@@ -177,6 +189,7 @@ export async function POST(request) {
     }
 
     if (validationErrors.length > 0) {
+      console.error('❌ Cart validation failed:', validationErrors);
       return jsonResponse({ 
         error: 'Cart validation failed',
         details: validationErrors
@@ -237,7 +250,7 @@ export async function POST(request) {
           const tax = orderData.subtotal * 0.15; // 15% VAT
           const total = orderData.subtotal + shippingCost + tax;
 
-          console.log(`💰 Order total: R${total.toFixed(2)} (subtotal: R${orderData.subtotal}, shipping: R${shippingCost}, tax: R${tax})`);
+          console.log(`💰 Order total: R${total.toFixed(2)} (subtotal: R${orderData.subtotal.toFixed(2)}, shipping: R${shippingCost.toFixed(2)}, tax: R${tax.toFixed(2)})`);
 
           // Create order with ALL required fields
           const orderDoc = {
@@ -335,32 +348,29 @@ export async function POST(request) {
       throw new Error(`Transaction failed: ${txError.message}`);
     }
 
-    // Handle PayFast payment for first order (or combine if needed)
+    // Handle PayFast payment
+    let paymentData = null;
     let paymentUrl = null;
+    
     if (paymentMethod === 'payfast' && createdOrders.length > 0) {
       try {
         const baseUrl = process.env.NEXTAUTH_URL || `https://${request.headers.get('host')}`;
-        const firstOrder = createdOrders[0];
         
-        const payfastData = createPayFastPayment(
-          {
-            ...firstOrder.toObject(),
-            user: { email: buyer.email },
-          },
-          `${baseUrl}/dashboard/purchases/${firstOrder._id}`,
+        // Calculate total for all orders
+        const totalAmount = createdOrders.reduce((sum, o) => sum + o.total, 0);
+        
+        // Create PayFast data for all orders combined
+        const payfastResult = createPayFastPayment(
+          createdOrders,
+          `${baseUrl}/payment/success`,
           `${baseUrl}/checkout`,
           `${baseUrl}/api/payment/payfast/notify`
         );
 
-        paymentUrl = payfastData.url;
+        paymentData = payfastResult.data;
+        paymentUrl = payfastResult.url;
         
-        // Store PayFast data
-        firstOrder.paymentDetails = {
-          payfastPaymentId: firstOrder.orderNumber,
-        };
-        await firstOrder.save();
-        
-        console.log('💳 PayFast payment URL generated');
+        console.log('💳 PayFast payment data generated');
       } catch (pfError) {
         console.error('⚠️ PayFast error (continuing anyway):', pfError);
         // Don't fail the whole order if PayFast fails
@@ -379,7 +389,8 @@ export async function POST(request) {
         sellerName: o.sellerName,
       })),
       message: `${createdOrders.length} order(s) created successfully`,
-      paymentUrl,
+      paymentData: paymentData, // Return PayFast form data
+      paymentUrl: paymentUrl,
     }, 201);
 
   } catch (error) {
@@ -393,9 +404,14 @@ export async function POST(request) {
     }
 
     console.error('❌ Checkout error:', error);
+    console.error('Stack trace:', error.stack);
+    
     return jsonResponse({ 
       error: error.message || 'Failed to process checkout',
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      details: process.env.NODE_ENV === 'development' ? {
+        message: error.message,
+        stack: error.stack
+      } : undefined
     }, 500);
   }
 }
