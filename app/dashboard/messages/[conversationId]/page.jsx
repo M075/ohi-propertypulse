@@ -9,6 +9,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Send, Trash2, Loader2, MessageSquare, ArrowLeft } from "lucide-react";
 import { toast } from "@/components/hooks/use-toast";
 import DashboardShell from "@/assets/components/DashboardShell";
+import Navbar from '@/assets/components/Navbar'
 
 export default function ConversationPage() {
   const { data: session } = useSession();
@@ -149,17 +150,20 @@ export default function ConversationPage() {
       </div>
     );
   }
-
-  return (
+  // Extracted render for chat UI so we can render it both inside the DashboardShell (desktop)
+  // and standalone for mobile (where the shell should be hidden).
+  const renderChatUI = () => (
     <>
-      {/* Hide top navbar but keep bottom nav */}
+      {/* Hide top navbar only on small screens (mobile) */}
       <style>{`
-        header nav[aria-label="Global"] {
-          display: none !important;
+        @media (max-width: 568px) {
+          header nav[aria-label="Global"] {
+            display: none !important;
+          }
         }
       `}</style>
       
-      <div className="h-screen w-screen fixed inset-0 lg:static lg:h-[calc(100vh-140px)] flex flex-col bg-white dark:bg-zinc-800 lg:rounded-lg lg:overflow-hidden" style={{ paddingBottom: '3.5rem' }}>
+      <div className="h-screen w-screen fixed inset-0 sm:static sm:h-[calc(100vh-140px)] sm:w-full flex flex-col bg-white dark:bg-zinc-800 sm:rounded-lg sm:overflow-hidden" style={{ paddingBottom: '3.5rem' }}>
       {/* Header */}
       <div className="flex items-center justify-between gap-4 p-4 sm:p-6 border-b border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 flex-shrink-0">
         <div className="flex items-center gap-4">
@@ -252,11 +256,12 @@ export default function ConversationPage() {
             type="submit" 
             disabled={sending || !newMessage.trim()}
             size="icon"
+             variant='success'
           >
             {sending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Send className="h-4 w-5" />
+              <Send className="h-4 w-5"/>
             )}
           </Button>
         </form>
@@ -264,4 +269,17 @@ export default function ConversationPage() {
     </div>
     </>
   );
+
+  return (
+    <>
+      {/* Mobile: show chat UI standalone */}
+      <div className="sm:hidden">{renderChatUI()}</div>
+
+      {/* Desktop: show chat UI inside DashboardShell (hidden on mobile) */}
+      <Navbar/>
+      <div className="hidden sm:block">
+        <DashboardShell>{renderChatUI()}</DashboardShell>
+      </div>
+    </>
+  )
 }

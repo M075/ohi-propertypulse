@@ -300,7 +300,6 @@ export default function OnboardingFlow() {
           {/* Navigation Buttons */}
           <div className="flex justify-between pt-4 border-t">
             <Button
-              variant="outline"
               onClick={handleBack}
               disabled={currentStep === 1 || loading}
             >
@@ -317,7 +316,7 @@ export default function OnboardingFlow() {
               <Button 
                 onClick={handleSubmit} 
                 disabled={loading}
-                className="bg-emerald-600 hover:bg-emerald-700"
+                variant='success'
               >
                 {loading ? 'Saving...' : 'Finish & Start Selling'}
               </Button>
