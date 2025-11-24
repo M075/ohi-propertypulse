@@ -5,12 +5,20 @@ import crypto from 'crypto';
  * Generate PayFast payment signature
  */
 export function generatePayFastSignature(data, passPhrase = null) {
+  // Create parameter string - must be in alphabetical order
+  const sortedData = {};
+  Object.keys(data).sort().forEach(key => {
+    sortedData[key] = data[key];
+  });
+
   // Create parameter string
   let pfOutput = '';
-  for (let key in data) {
-    if (data.hasOwnProperty(key)) {
-      if (data[key] !== '') {
-        pfOutput += `${key}=${encodeURIComponent(data[key].toString().trim()).replace(/%20/g, '+')}&`;
+  for (let key in sortedData) {
+    if (sortedData.hasOwnProperty(key) && key !== 'signature') {
+      const value = sortedData[key];
+      // Only include non-empty values
+      if (value !== '' && value !== null && value !== undefined) {
+        pfOutput += `${key}=${encodeURIComponent(value.toString().trim()).replace(/%20/g, '+')}&`;
       }
     }
   }
@@ -18,11 +26,16 @@ export function generatePayFastSignature(data, passPhrase = null) {
   // Remove last ampersand
   let getString = pfOutput.slice(0, -1);
   
-  if (passPhrase !== null) {
+  // Add passphrase if provided
+  if (passPhrase !== null && passPhrase !== '') {
     getString += `&passphrase=${encodeURIComponent(passPhrase.trim()).replace(/%20/g, '+')}`;
   }
 
-  return crypto.createHash('md5').update(getString).digest('hex');
+  console.log('Signature string:', getString);
+  const signature = crypto.createHash('md5').update(getString).digest('hex');
+  console.log('Generated signature:', signature);
+  
+  return signature;
 }
 
 /**
@@ -79,7 +92,6 @@ export function createPayFastPayment(orders, returnUrl, cancelUrl, notifyUrl) {
     name_first: firstName,
     name_last: lastName,
     email_address: email,
-    cell_number: phone.replace(/\s/g, ''),
     
     // Transaction details
     m_payment_id: orderNumbers,
@@ -95,7 +107,12 @@ export function createPayFastPayment(orders, returnUrl, cancelUrl, notifyUrl) {
     custom_int2: itemCount,
   };
 
-  // Generate signature
+  // Only add cell_number if it exists and is not empty
+  if (phone && phone.replace(/\s/g, '')) {
+    data.cell_number = phone.replace(/\s/g, '');
+  }
+
+  // Generate signature - IMPORTANT: Sandbox does NOT use passphrase
   data.signature = generatePayFastSignature(data, useSandbox ? null : passPhrase);
 
   return {
