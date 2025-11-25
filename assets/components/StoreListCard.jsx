@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Eye, Heart, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,19 +16,18 @@ const StoreListCard = ({ shop, onLike, isHighlighted }) => {
   }, [isHighlighted]);
 
   return (
-    <Card
+    <div
       id={`store-${shop.id}`}
       className={`
-        overflow-hidden transition-all duration-400 ease-in-out
-        ${animate ? 'ring-2 ring-emerald-500 shadow-emerald-200 dark:shadow-emerald-900' : 'border-none'}
-        bg-white/40 dark:bg-zinc-800/40 backdrop-blur-sm
-        hover:shadow-md hover:ring-2 hover:ring-emerald-500
+        transition-all duration-400 ease-in-out border-b border-gray-200 dark:border-gray-700
+        ${animate ? 'bg-emerald-50 dark:bg-emerald-900/20' : ''}
+        hover:bg-gray-50 dark:hover:bg-zinc-800/50
       `}
     >
-      <div className="flex flex-row justify-center gap-4 p-6">
+      <div className="flex items-center gap-4 py-4 px-2">
         {/* Image Section */}
         <div className="flex-shrink-0">
-          <div className="relative w-32 h-32 rounded-full overflow-hidden mx-auto sm:mx-0">
+          <div className="relative w-16 h-16 rounded-full overflow-hidden">
             <Image
               src={shop.avatar}
               alt={shop.name}
@@ -40,21 +38,17 @@ const StoreListCard = ({ shop, onLike, isHighlighted }) => {
         </div>
 
         {/* Content Section */}
-        <div className="flex-1 flex flex-col sm:flex-row justify-between gap-4">
-          <div className="flex-1 ml-4">
-            <h3 className="text-xl font-semibold dark:text-white mb-2">
-              {shop.name}
-            </h3>
-            
-            {shop.about && (
-              <p className="text-sm dark:text-gray-300 line-clamp-2 mb-3">
-                {shop.about}
-              </p>
-            )}
+        <div className="flex-1 min-w-0">
+          <h3 className="text-lg font-semibold dark:text-white mb-1">
+            {shop.name}
+          </h3>
+          
+          
 
+          <div className="flex flex-col gap-4 text-sm">
             {(shop.city || shop.province) && (
-              <div className="text-sm dark:text-gray-200 flex items-center gap-2 mb-4">
-                <MapPin className="h-4 w-4 dark:text-gray-200" />
+              <div className="dark:text-gray-400 flex items-center gap-1">
+                <MapPin className="h-3 w-3" />
                 <span>
                   {shop.city && shop.province 
                     ? `${shop.city}, ${shop.province}` 
@@ -62,45 +56,48 @@ const StoreListCard = ({ shop, onLike, isHighlighted }) => {
                 </span>
               </div>
             )}
-
-            {/* Stats - Mobile Friendly */}
-            <div className="flex gap-6 text-sm">
-              <div>
-                <div className="font-semibold dark:text-white">{shop.likes}</div>
-                <div className="text-gray-600 dark:text-gray-400">Likes</div>
+              {shop.about && (
+            <div className="flex items-start gap-2">
+                <p className="dark:text-gray-400">
+                  {shop.about}
+                </p>
               </div>
-              <div>
-                <div className="font-semibold dark:text-white">{shop.totalProducts}</div>
-                <div className="text-gray-600 dark:text-gray-400">Products</div>
-              </div>
+              )}
+            
+            <div className="flex items-start gap-3">
+              <span className="dark:text-gray-400">
+                <span className="font-semibold dark:text-white">{shop.likes}</span> Likes
+              </span>
+              <span className="dark:text-gray-400">
+                <span className="font-semibold dark:text-white">{shop.totalProducts}</span> Products
+              </span>
             </div>
           </div>
+        </div>
 
-          {/* Actions Section */}
-          <div className="space-x-2 sm:space-y-2 sm:my-auto sm:justify-center">
-            
-            <Button
-              variant="outline"
-              onClick={() => onLike(shop.id)}
-              className={`sm:flex-none ${
-                shop.isLiked 
-                  ? 'bg-red-500 text-white border-red-500 hover:bg-red-500 hover:text-white' 
-                  : 'text-red-500 border-red-500 dark:bg-transparent dark:hover:bg-red-500 hover:text-white'
-              }`}
-            >
-              <Heart className={`h-4 w-4 ${shop.isLiked ? 'fill-current' : ''}`} />
+        {/* Actions Section */}
+        <div className="flex flex-col items-center gap-2 flex-shrink-0">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onLike(shop.id)}
+            className={`${
+              shop.isLiked 
+                ? 'bg-red-500 text-white border-red-500 hover:bg-red-600 hover:text-white' 
+                : 'text-red-500 border-red-500 dark:bg-transparent dark:hover:bg-red-500 hover:text-white'
+            }`}
+          >
+            <Heart className={`h-4 w-4 ${shop.isLiked ? 'fill-current' : ''}`} />
+          </Button>
+          <Link href={`/stores/${shop.id}`}>
+            <Button size="sm">
+              <Eye className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">View</span>
             </Button>
-            <Link href={`/stores/${shop.id}`} className="flex-1 sm:flex-none">
-              <Button className=" bg-emerald-600 hover:bg-emerald-700 text-white">
-                <Eye className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">View</span>
-              </Button>
-            </Link>
-
-          </div>
+          </Link>
         </div>
       </div>
-    </Card>
+    </div>
   );
 };
 

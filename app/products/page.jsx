@@ -3,7 +3,7 @@ import ProductCard from "@/assets/components/ProductCard";
 import React from "react";
 import Loading from "@/app/loading";
 import { useProducts } from "@/assets/hooks/useProductsHook";
-import FilterAndSort from "@/assets/components/FilterAndSort";
+import FilterAndSort from "@/assets/components/ProductFilterAndSort";
 import ShopByCategory from "@/assets/components/ShopByCategory";
 import Image from "next/image";
 

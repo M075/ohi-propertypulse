@@ -16,6 +16,9 @@ import { Package, TrendingUp, Clock, CheckCircle2, XCircle, Truck } from "lucide
 import Link from "next/link";
 import Image from "next/image";
 import DashboardShell from "@/assets/components/DashboardShell";
+// app/dashboard/orders/page.jsx - SELLER ONLY
+import { redirect } from 'next/navigation';
+import { requireSeller } from '@/middleware/roleProtection';
 
 const statusConfig = {
   pending: { label: "Pending", color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300", icon: Clock },
@@ -51,7 +54,13 @@ const StatsCard = ({ title, value, icon: Icon, color = "emerald" }) => {
   );
 };
 
-export default function OrdersPage() {
+export default async function OrdersPage() {
+  const auth = await requireSeller();
+  
+  if (!auth.authorized) {
+    redirect(auth.redirect);
+  }
+  
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
@@ -92,6 +101,8 @@ export default function OrdersPage() {
 
   const OrderCard = ({ order }) => {
     const StatusIcon = statusConfig[order.status]?.icon || Package;
+
+    
     
     return (
       <Link href={`/dashboard/orders/${order._id}`}>

@@ -99,7 +99,7 @@ export default function FilterAndSort({ products = [], renderResults }) {
 
   return (
     <div className="mb-6">
-      <div className="flex flex-row items-center gap-3 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md p-3 sm:p-4 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 mb-6">
+      <div className="flex flex-row items-center gap-3 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md p-3 sm:p-4 rounded-xl shadow-md mb-4">
         <Input
           aria-label="Search products"
           value={query}

@@ -1,4 +1,4 @@
-// utils/authOptions.js - FIXED VERSION with admin support
+// utils/authOptions.js - Updated to include role
 import NextAuth from "next-auth/next"
 import GoogleProvider from "next-auth/providers/google"
 import FacebookProvider from "next-auth/providers/facebook"
@@ -56,8 +56,9 @@ export const authOptions = {
           name: user.storename,
           image: user.image,
           isOnboarded: user.isOnboarded || false,
-          isAdmin: user.isAdmin || false, // ADDED
-          adminRole: user.adminRole || null, // ADDED
+          role: user.role || 'buyer', // ADDED
+          isAdmin: user.isAdmin || false,
+          adminRole: user.adminRole || null,
         };
       }
     })
@@ -84,13 +85,14 @@ export const authOptions = {
           image: user.image || profile?.picture,
           isOnboarded: false,
           authProvider: account.provider,
+          role: 'buyer', // Default to buyer
         });
         
-        // ADDED: Update user object with admin status for new users
+        user.role = newUser.role;
         user.isAdmin = newUser.isAdmin || false;
         user.adminRole = newUser.adminRole || null;
       } else {
-        // ADDED: Update user object with existing user's admin status
+        user.role = userExists.role || 'buyer';
         user.isAdmin = userExists.isAdmin || false;
         user.adminRole = userExists.adminRole || null;
       }
@@ -101,10 +103,8 @@ export const authOptions = {
     async session({ session, token }) {
       await connectDB();
       
-      // Try to get user from database first
       let user = await User.findOne({ email: session.user.email });
       
-      // If user doesn't exist, create a default entry
       if (!user) {
         try {
           const emailLocal = (session.user.email || '').split('@')[0] || '';
@@ -119,6 +119,7 @@ export const authOptions = {
             image: session.user.image,
             isOnboarded: false,
             authProvider: 'oauth',
+            role: 'buyer',
           });
         } catch (error) {
           console.error('Error creating user in session callback:', error);
@@ -130,6 +131,7 @@ export const authOptions = {
         session.user.id = user._id.toString();
         session.user.isOnboarded = user.isOnboarded || false;
         session.user.storename = user.storename;
+        session.user.role = user.role || 'buyer'; // ADDED
         session.user.isAdmin = user.isAdmin || false;
         session.user.adminRole = user.adminRole || null;
         session.user.adminPermissions = user.adminPermissions || [];
@@ -142,7 +144,7 @@ export const authOptions = {
       if (user) {
         token.id = user.id;
         token.isOnboarded = user.isOnboarded;
-        // ADDED: Include admin data in JWT token
+        token.role = user.role || 'buyer'; // ADDED
         token.isAdmin = user.isAdmin || false;
         token.adminRole = user.adminRole || null;
       }
@@ -150,19 +152,19 @@ export const authOptions = {
       if (trigger === 'update' && session) {
         token.isOnboarded = session.user.isOnboarded;
         token.storename = session.user.storename;
-        // ADDED: Update admin data on token update
+        token.role = session.user.role; // ADDED
         token.isAdmin = session.user.isAdmin;
         token.adminRole = session.user.adminRole;
       }
       
-      // ADDED: Refresh admin status from database periodically
-      if (token.email && !token.isAdmin && token.isAdmin !== false) {
+      if (token.email && !token.role) {
         try {
           await connectDB();
           const user = await User.findOne({ email: token.email });
           if (user) {
             token.isOnboarded = user.isOnboarded || false;
             token.storename = user.storename;
+            token.role = user.role || 'buyer'; // ADDED
             token.isAdmin = user.isAdmin || false;
             token.adminRole = user.adminRole || null;
           }
@@ -175,9 +177,7 @@ export const authOptions = {
     },
 
     async redirect({ url, baseUrl }) {
-      // Allows relative callback URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`;
-      // Allows callback URLs on the same origin
       else if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     }
@@ -192,7 +192,7 @@ export const authOptions = {
 
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 30 * 24 * 60 * 60,
   },
 
   debug: process.env.NODE_ENV === 'development',

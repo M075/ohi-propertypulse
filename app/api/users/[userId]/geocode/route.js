@@ -120,6 +120,14 @@ export async function PUT(request, { params }) {
       return Response.json({ error: 'User not found' }, { status: 404 });
     }
 
+    // Update all profile fields
+    const profileFields = ['phone', 'storename', 'about'];
+    profileFields.forEach(field => {
+      if (body[field] !== undefined) {
+        user[field] = body[field];
+      }
+    });
+
     // Update address fields
     const addressFields = ['address', 'city', 'province', 'zipCode', 'country'];
     let addressChanged = false;

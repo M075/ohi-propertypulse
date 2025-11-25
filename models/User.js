@@ -1,4 +1,4 @@
-// models/User.js - FIXED to prevent geo index errors on signup
+// models/User.js - Add role field
 import { Schema, model, models } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
@@ -23,6 +23,20 @@ const UserSchema = new Schema(
       enum: ['google', 'facebook', 'credentials'],
       default: 'google',
     },
+    
+    // NEW: User role - defaults to buyer
+    role: {
+      type: String,
+      enum: ['buyer', 'seller', 'admin'],
+      default: 'buyer',
+    },
+    
+    // Seller verification (for sellers only)
+    isVerifiedSeller: {
+      type: Boolean,
+      default: false,
+    },
+    
     storename: {
       type: String,
       required: [true, 'Store name is required!'],
@@ -82,7 +96,7 @@ const UserSchema = new Schema(
       },
     ],
     
-    // Geospatial fields - nullable to prevent index errors
+    // Geospatial fields
     latitude: {
       type: Number,
       min: -90,
@@ -101,14 +115,13 @@ const UserSchema = new Schema(
     geocodedAt: {
       type: Date,
     },
-    // GeoJSON point - FIXED: make it nullable and only create when coordinates exist
     location: {
       type: {
         type: String,
         enum: ['Point'],
       },
       coordinates: {
-        type: [Number], // [longitude, latitude]
+        type: [Number],
       },
     },
     
@@ -142,28 +155,28 @@ const UserSchema = new Schema(
       default: true,
     },
   
-  // Admin privileges
-  isAdmin: {
-    type: Boolean,
-    default: false,
-  },
-  adminRole: {
-    type: String,
-    enum: ['super_admin', 'admin', 'moderator', null],
-    default: null,
-  },
-  adminPermissions: [{
-    type: String,
-    enum: [
-      'manage_users',
-      'manage_products',
-      'manage_orders',
-      'manage_sellers',
-      'view_analytics',
-      'manage_settings',
-      'manage_couriers'
-    ],
-  }],
+    // Admin privileges
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
+    adminRole: {
+      type: String,
+      enum: ['super_admin', 'admin', 'moderator', null],
+      default: null,
+    },
+    adminPermissions: [{
+      type: String,
+      enum: [
+        'manage_users',
+        'manage_products',
+        'manage_orders',
+        'manage_sellers',
+        'view_analytics',
+        'manage_settings',
+        'manage_couriers'
+      ],
+    }],
   },
   {
     timestamps: true,
@@ -192,6 +205,7 @@ UserSchema.pre('save', function(next) {
   }
   next();
 });
+
 // Hash password before saving
 UserSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
@@ -203,24 +217,18 @@ UserSchema.pre('save', async function(next) {
   next();
 });
 
-// FIXED: Only create location field if coordinates exist
+// Set location if coordinates exist
 UserSchema.pre('save', function(next) {
-  // Only set location if both latitude and longitude exist
   if (this.latitude != null && this.longitude != null) {
     this.location = {
       type: 'Point',
       coordinates: [this.longitude, this.latitude]
     };
   } else {
-    // Remove location field if coordinates don't exist
     this.location = undefined;
   }
   next();
 });
-
-// FIXED: Create geospatial index only on documents that have location
-// This is a sparse index - only indexes documents that have the location field
-UserSchema.index({ location: '2dsphere' }, { sparse: true });
 
 // Ensure default storename
 UserSchema.pre('save', function (next) {
@@ -249,6 +257,9 @@ UserSchema.post('save', async function (doc) {
   }
 });
 
+// Sparse geospatial index
+UserSchema.index({ location: '2dsphere' }, { sparse: true });
+
 // Method to compare password
 UserSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
@@ -265,7 +276,17 @@ UserSchema.methods.isOnboardingComplete = function() {
   );
 };
 
-// Method to find nearby stores - only works if location is set
+// NEW: Check if user has seller access
+UserSchema.methods.hasSellerAccess = function() {
+  return this.role === 'seller' || this.role === 'admin' || this.isAdmin;
+};
+
+// NEW: Check if user can create products
+UserSchema.methods.canCreateProducts = function() {
+  return this.hasSellerAccess() && this.isVerifiedSeller;
+};
+
+// Method to find nearby stores
 UserSchema.statics.findNearby = function(longitude, latitude, maxDistanceKm = 50) {
   return this.find({
     location: {
