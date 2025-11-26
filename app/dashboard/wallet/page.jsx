@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 
 // Replace mock data with API calls
-const { data } = await fetch('/api/wallet');
+// const { data } = await fetch('/api/wallet');
 
 const mockWalletData = {
   balance: 45250.75,
