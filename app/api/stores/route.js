@@ -13,8 +13,10 @@ export async function GET(request) {
     const sortBy = searchParams.get('sortBy') || 'createdAt';
     const sortOrder = searchParams.get('sortOrder') || 'desc';
 
-    // Build query
-    let query = {};
+    // Build query - Only include sellers and admins, exclude buyers
+    let query = {
+      role: { $in: ['seller'] }
+    };
     
     if (search) {
       query.$or = [

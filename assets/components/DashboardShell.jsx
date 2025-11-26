@@ -130,14 +130,9 @@ export default function DashboardShell({ children }) {
   const adminNavigation = [
     ...sellerNavigation,
     {
-      name: "Analytics",
-      href: "/dashboard/analytics",
+      name: "Admin Dashboard",
+      href: "/dashboard/admin",
       icon: BarChart3,
-    },
-    {
-      name: "Manage Stores",
-      href: "/dashboard/admin/stores",
-      icon: Store,
     },
   ];
 

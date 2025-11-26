@@ -1,8 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, Edit2, PlusCircle, Upload, X } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 // Importing UI components from a custom UI library
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +37,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 
 const AddProductForm = () => {
+  const { data: session } = useSession();
+  
   // State to hold form field values
   const [fields, setFields] = useState({
     owner: "",
@@ -59,6 +62,30 @@ const AddProductForm = () => {
     thumbnail: "",
     images: [],
   });
+
+  // Fetch user data on mount to set shipping origin
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (session?.user?.id) {
+        try {
+          const response = await fetch(`/api/users/${session.user.id}`);
+          const data = await response.json();
+          
+          // Set shipping origin to user's city
+          if (data.city) {
+            setFields(prev => ({
+              ...prev,
+              shippingOrigin: data.city
+            }));
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [session?.user?.id]);
 
   // Keep actual File objects for upload (parallel to fields.images previews)
   const [imageFiles, setImageFiles] = useState([]);
@@ -330,7 +357,7 @@ const AddProductForm = () => {
                       <Textarea
                         id="description"
                         className="min-h-32"
-                        placeholder="Enter a brief description of the product features and any relevant information."
+                        placeholder="Describe features of your product or any relevant information for buyers."
                         name="description"
                         value={fields.description}
                         onChange={handleChange}
@@ -396,32 +423,14 @@ const AddProductForm = () => {
                       <Label htmlFor="brand" data-oid="20o2diu">
                         Brand (optional)
                       </Label>
-                      <Select
+                      <Input
                         name="brand"
+                        placeholder="Product Brand"
                         value={fields.brand}
-                        onValueChange={(value) =>
-                          handleSelectChange("brand", value)
-                        }
+                        onChange={handleChange}
                         data-oid="r9vyq0u"
                       >
-                        <SelectTrigger id="brand" data-oid="a-ye-w-">
-                          <SelectValue
-                            placeholder="Select brand"
-                            data-oid="xp0h:aj"
-                          />
-                        </SelectTrigger>
-                        <SelectContent data-oid="h5r0oo7">
-                          <SelectItem value="brand1" data-oid=".s8k9:2">
-                            Brand 1
-                          </SelectItem>
-                          <SelectItem value="brand2" data-oid="38ro8_j">
-                            Brand 2
-                          </SelectItem>
-                          <SelectItem value="brand3" data-oid="-hxf-q9">
-                            Brand 3
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
+                      </Input>
                     </div>
                   </div>
                 </CardContent>
@@ -431,9 +440,7 @@ const AddProductForm = () => {
               <Card x-chunk="dashboard-07-chunk-1" data-oid="-01h2fi">
                 <CardHeader data-oid="9wyfw8p">
                   <CardTitle data-oid="57r:x0k">Stock</CardTitle>
-                  <CardDescription data-oid=":wi-ug-">
-                    Lipsum dolor sit amet, consectetur adipiscing elit
-                  </CardDescription>
+                  
                 </CardHeader>
                 <CardContent data-oid="rctzls7">
                   <Table data-oid="cxu5zg6">

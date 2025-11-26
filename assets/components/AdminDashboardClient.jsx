@@ -1,8 +1,6 @@
-// app/admin/dashboard/page.jsx
+// assets/components/AdminDashboardClient.jsx
 "use client";
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -61,9 +59,7 @@ const StatsCard = ({ title, value, icon: Icon, color = "emerald", trend }) => {
   );
 };
 
-export default function AdminDashboard() {
-  const { data: session } = useSession();
-  const router = useRouter();
+export default function AdminDashboardClient() {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -80,14 +76,8 @@ export default function AdminDashboard() {
   const [flaggedProducts, setFlaggedProducts] = useState([]);
 
   useEffect(() => {
-    // Check if user is admin
-    if (session && !session.user.isAdmin) {
-      router.push("/dashboard");
-      return;
-    }
-
     fetchDashboardData();
-  }, [session]);
+  }, []);
 
   const fetchDashboardData = async () => {
     try {
@@ -159,7 +149,7 @@ export default function AdminDashboard() {
             </p>
           </div>
           <Button asChild>
-            <Link href="/admin/settings">Settings</Link>
+            <Link href="/dashboard/admin/settings">Settings</Link>
           </Button>
         </div>
 
@@ -228,7 +218,7 @@ export default function AdminDashboard() {
                       <div className="flex items-center gap-4">
                         <Badge>{order.status}</Badge>
                         <p className="font-semibold">R {order.total.toFixed(2)}</p>
-                        <Link href={`/admin/orders/${order._id}`}>
+                        <Link href={`/dashboard/admin/orders/${order._id}`}>
                           <Button size="sm" variant="outline">
                             <Eye className="h-4 w-4" />
                           </Button>
@@ -326,7 +316,7 @@ export default function AdminDashboard() {
                 <p className="text-muted-foreground">
                   Product management interface - Link to detailed product list
                 </p>
-                <Link href="/admin/products">
+                <Link href="/dashboard/admin/products">
                   <Button className="mt-4">View All Products</Button>
                 </Link>
               </CardContent>
@@ -407,25 +397,25 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Link href="/admin/orders">
+              <Link href="/dashboard/admin/orders">
                 <Button variant="outline" className="w-full">
                   <Truck className="h-4 w-4 mr-2" />
                   Manage Orders
                 </Button>
               </Link>
-              <Link href="/admin/users">
+              <Link href="/dashboard/admin/users">
                 <Button variant="outline" className="w-full">
                   <Users className="h-4 w-4 mr-2" />
                   Manage Users
                 </Button>
               </Link>
-              <Link href="/admin/products">
+              <Link href="/dashboard/admin/products">
                 <Button variant="outline" className="w-full">
                   <Package className="h-4 w-4 mr-2" />
                   Manage Products
                 </Button>
               </Link>
-              <Link href="/admin/payments">
+              <Link href="/dashboard/admin/payments">
                 <Button variant="outline" className="w-full">
                   <TrendingUp className="h-4 w-4 mr-2" />
                   View Payments
